@@ -32,11 +32,7 @@ public class QuesController {
     private QuesService quesService;
 
 
-    @Autowired
-    private LabelService labelService;
 
-    @Autowired
-    private AnswerService answerService;
 
     /**
      * 列表
@@ -64,10 +60,10 @@ public class QuesController {
      */
     @RequestMapping("/save")
     public R save(@RequestBody QuesAnswerVo quesVo) {
-        AnswerEntity answerEntity = new AnswerEntity();
-        answerEntity.setAnswer(quesVo.getAnswer());
-        answerService.save(answerEntity);
-        System.out.println(answerEntity.getAnswerId());
+
+        quesService.saveQuestion(quesVo);
+
+
 
         return R.ok();
     }

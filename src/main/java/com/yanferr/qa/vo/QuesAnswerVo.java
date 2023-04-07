@@ -7,16 +7,19 @@ import java.util.Date;
 
 @Data
 public class QuesAnswerVo {
-
+    //  tb_answer
     private String answer;
 
+    // tb_ques
     private String scene;
 
     private String source;
 
-    private String[] labels;
-
     private String ques;
+
+    // tb_ques_label_relation
+    private long[] labelIds;
+
 
 
 

@@ -23,6 +23,8 @@ public class QuesLabelRelationEntity implements Serializable {
 	 * 
 	 */
 	@TableId
+	private Long id;
+
 	private Long labelId;
 	/**
 	 * 

@@ -3,6 +3,7 @@ package com.yanferr.qa.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.qa.entity.QuesEntity;
+import com.yanferr.qa.vo.QuesAnswerVo;
 
 import java.util.Map;
 
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface QuesService extends IService<QuesEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void saveQuestion(QuesAnswerVo quesVo);
 }
 
