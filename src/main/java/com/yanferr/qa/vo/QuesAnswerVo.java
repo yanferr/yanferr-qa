@@ -26,7 +26,7 @@ public class QuesAnswerVo {
     private String ques;
 
     // tb_ques_label_relation
-    @NotNull(message = "至少选择一个标签")
+    // @NotNull(message = "至少选择一个标签")
     private long[] labelIds;
 
 

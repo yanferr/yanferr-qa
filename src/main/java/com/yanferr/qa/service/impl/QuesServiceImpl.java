@@ -57,15 +57,17 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         quesEntity.setCreateTime(new Date());
         quesEntity.setAnswerId(answerEntity.getAnswerId());
         BeanUtils.copyProperties(quesVo,quesEntity);
-        if(quesEntity.getSource()==null) quesEntity.setSource("other");
         this.save(quesEntity);
 
         // 3.保存标签关联关系
-        for (long labelId : quesVo.getLabelIds()) {
-            QuesLabelRelationEntity entity = new QuesLabelRelationEntity();
-            entity.setQuesId(quesEntity.getQuesId());
-            entity.setLabelId(labelId);
-            quesLabelRelationService.save(entity);
+        if(quesVo.getLabelIds()!=null){
+            for (long labelId : quesVo.getLabelIds()) {
+                QuesLabelRelationEntity entity = new QuesLabelRelationEntity();
+                entity.setQuesId(quesEntity.getQuesId());
+                entity.setLabelId(labelId);
+                quesLabelRelationService.save(entity);
+            }
         }
+
     }
 }

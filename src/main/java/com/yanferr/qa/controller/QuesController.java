@@ -1,6 +1,7 @@
 package com.yanferr.qa.controller;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,6 +82,7 @@ public class QuesController {
      */
     @RequestMapping("/update")
     public R update(@RequestBody QuesEntity ques) {
+        ques.setUpdateTime(new Date());
         quesService.updateById(ques);
 
         return R.ok();

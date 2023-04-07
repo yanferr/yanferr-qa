@@ -9,6 +9,10 @@ spring:
 
   application:
     name: yanferr-qa
+  # 配置日期类型返回格式
+  jackson:
+    date-format: yyyy-MM-dd HH:mm
+    time-zone: GMT+8   # 24小时制
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
@@ -21,5 +25,6 @@ mybatis-plus:
 logging: #开启日志打印，能看到sql
   level:
     com.yanferr.user: debug
+
 
 
