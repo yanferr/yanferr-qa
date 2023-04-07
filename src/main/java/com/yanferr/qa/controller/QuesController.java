@@ -1,6 +1,7 @@
 package com.yanferr.qa.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.yanferr.common.utils.PageUtils;
@@ -10,6 +11,7 @@ import com.yanferr.qa.service.AnswerService;
 import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.service.QuesService;
+
+import javax.validation.Valid;
 
 
 /**
@@ -30,8 +34,6 @@ import com.yanferr.qa.service.QuesService;
 public class QuesController {
     @Autowired
     private QuesService quesService;
-
-
 
 
     /**
@@ -59,12 +61,18 @@ public class QuesController {
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody QuesAnswerVo quesVo) {
-
-        quesService.saveQuestion(quesVo);
-
-
-
+    public R save(@Valid @RequestBody QuesAnswerVo quesVo, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            HashMap<String, String> map = new HashMap<>();
+            bindingResult.getFieldErrors().forEach((item) -> {
+                String name = item.getField(); // 得到属性名
+                String msg = item.getDefaultMessage();
+                map.put(name, msg);
+            });
+            return R.error(400, "表单提交信息不合法").put("data", map);
+        } else {
+            quesService.saveQuestion(quesVo);
+        }
         return R.ok();
     }
 

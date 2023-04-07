@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 
@@ -27,6 +28,7 @@ public class AnswerEntity implements Serializable {
 	/**
 	 * 
 	 */
+
 	private String answer;
 
 }
