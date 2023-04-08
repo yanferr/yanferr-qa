@@ -93,7 +93,9 @@ public class QuesController {
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] quesIds) {
-        quesService.removeByIds(Arrays.asList(quesIds));
+        // 查询answerIds 然后删除
+
+        quesService.removeQAByIds(Arrays.asList(quesIds));
 
         return R.ok();
     }

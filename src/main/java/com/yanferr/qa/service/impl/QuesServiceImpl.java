@@ -11,7 +11,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -69,5 +71,16 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             }
         }
 
+    }
+
+    @Override
+    @Transactional
+    public void removeQAByIds(List<Long> quesIds) {
+        // 删除对应答案
+        for (Long quesId : quesIds) {
+            QuesEntity ques = this.getById(quesId);
+            answerService.removeById(ques.getAnswerId());
+        }
+        this.removeByIds(quesIds);
     }
 }

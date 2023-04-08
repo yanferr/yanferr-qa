@@ -5,6 +5,7 @@ import com.yanferr.common.utils.PageUtils;
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.vo.QuesAnswerVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,5 +20,7 @@ public interface QuesService extends IService<QuesEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     void saveQuestion(QuesAnswerVo quesVo);
+
+    void removeQAByIds(List<Long> quesIds);
 }
 
