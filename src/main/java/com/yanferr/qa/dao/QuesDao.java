@@ -2,7 +2,11 @@ package com.yanferr.qa.dao;
 
 import com.yanferr.qa.entity.QuesEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 
@@ -13,5 +17,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface QuesDao extends BaseMapper<QuesEntity> {
-	
+
+    List<QuesLabelRelationEntity> selectDistinctQuesByQuesId();
+
+
 }

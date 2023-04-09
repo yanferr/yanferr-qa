@@ -29,6 +29,14 @@ public class LabelController {
     @Autowired
     private LabelService labelService;
 
+    @RequestMapping("/list/tree")
+    public R list() {
+
+        List<LabelEntity> data = labelService.listWithTree(0L);
+
+        return R.ok().put("data", data);
+    }
+
     /**
      * 列表
      */

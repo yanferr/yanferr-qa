@@ -31,6 +31,18 @@ public class QuesLabelRelationController {
     private QuesLabelRelationService quesLabelRelationService;
 
     /**
+     * 根据quesId更新其所有labelIds关系
+     * @param quesId
+     * @param labelIds
+     * @return
+     */
+    @RequestMapping("/update/{quesId}")
+    public R update(@PathVariable Long quesId, @RequestBody Long[] labelIds){
+        quesLabelRelationService.updateByQuesId(quesId,labelIds);
+        return R.ok();
+    }
+
+    /**
      * 列表
      */
     @RequestMapping("/list")
@@ -39,7 +51,6 @@ public class QuesLabelRelationController {
 
         return R.ok().put("page", page);
     }
-
 
     /**
      * 信息

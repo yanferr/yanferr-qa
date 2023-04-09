@@ -12,6 +12,13 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
+    <select id="selectDistinctQuesByQuesId" resultType="com.yanferr.qa.entity.QuesLabelRelationEntity">
+        SELECT
+            max(label_id) label_id,ques_id
+        FROM
+            `tb_ques_label_relation`
+        group by ques_id
+    </select>
 
 
 </mapper>

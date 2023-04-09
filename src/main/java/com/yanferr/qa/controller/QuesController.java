@@ -1,15 +1,13 @@
 package com.yanferr.qa.controller;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
 import com.yanferr.qa.entity.AnswerEntity;
 import com.yanferr.qa.service.AnswerService;
 import com.yanferr.qa.service.LabelService;
+import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
@@ -56,6 +54,14 @@ public class QuesController {
         QuesEntity ques = quesService.getById(quesId);
 
         return R.ok().put("ques", ques);
+    }
+    /**
+     * 通过labelId获取所有labelId及labelId子下的ques，以及所有问题对应的标签名字
+     */
+    @RequestMapping("/list/{labelId}")
+    public R listByLabelId(@PathVariable Long labelId){
+        List<QuesLabelTo> data = quesService.listByLabelId(labelId);
+        return R.ok().put("data",data);
     }
 
     /**

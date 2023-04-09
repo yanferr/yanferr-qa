@@ -1,20 +1,21 @@
 package com.yanferr.qa.service.impl;
 
 import com.yanferr.qa.entity.AnswerEntity;
+import com.yanferr.qa.entity.LabelEntity;
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import com.yanferr.qa.service.AnswerService;
 import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.service.QuesLabelRelationService;
+import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -32,6 +33,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Autowired
     private AnswerService answerService;
+
+    @Autowired
+    private LabelService labelService;
 
     @Autowired
     private QuesLabelRelationService quesLabelRelationService;
@@ -83,4 +87,44 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         }
         this.removeByIds(quesIds);
     }
+
+    /**
+     * 通过labelId获取所有ques
+     */
+    @Override
+    public List<QuesLabelTo> listByLabelId(Long labelId) {  // todo：循环查库
+
+         // 根据所有子标签的id获取所有关联关系实体
+        // List<QuesLabelRelationEntity> entities = quesLabelRelationService.list(new QueryWrapper<QuesLabelRelationEntity>().in("label_id", labelIds));
+        // 存在quesEntity重复的问题，需要手动SQL去重
+        List<QuesLabelRelationEntity> entities=null;
+        if(labelId!=0){ // todo：会出现quesEntity重复，需要手动写SQL
+            List<Long> labelIds = labelService.getChildrenLabelIdsByLabelId(labelId);
+            labelIds.add(labelId);
+            entities = quesLabelRelationService.list(new QueryWrapper<QuesLabelRelationEntity>().in("label_id", labelIds));
+
+
+        }else{
+             entities = this.baseMapper.selectDistinctQuesByQuesId();
+        }
+        if(entities.size() !=0){
+            // 根据
+            List<QuesLabelTo> toList = entities.stream().map(relationEntity -> {
+                QuesLabelTo quesLabelTo = new QuesLabelTo();
+                // 1. 通过labelid去查label，
+                LabelEntity labelEntity = labelService.getById(relationEntity.getLabelId());
+                // 2. 通过quesid去查ques
+                QuesEntity quesEntity = this.getById(relationEntity.getQuesId());
+                BeanUtils.copyProperties(quesEntity, quesLabelTo);
+                BeanUtils.copyProperties(labelEntity, quesLabelTo);
+                return quesLabelTo;
+            }).collect(Collectors.toList());
+            return toList;
+        }else{
+            return null;
+        }
+
+    }
+
+
 }

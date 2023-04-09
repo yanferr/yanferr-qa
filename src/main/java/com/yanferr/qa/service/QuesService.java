@@ -3,6 +3,7 @@ package com.yanferr.qa.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.qa.entity.QuesEntity;
+import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 
 import java.util.List;
@@ -22,5 +23,10 @@ public interface QuesService extends IService<QuesEntity> {
     void saveQuestion(QuesAnswerVo quesVo);
 
     void removeQAByIds(List<Long> quesIds);
+
+    /**
+     * 通过labelId获取所有ques
+     */
+    List<QuesLabelTo> listByLabelId(Long labelId);
 }
 
