@@ -20,7 +20,7 @@ public interface QuesService extends IService<QuesEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
-    void saveQuestion(QuesAnswerVo quesVo);
+    void saveOrUpdateQuestion(QuesAnswerVo quesVo);
 
     void removeQAByIds(List<Long> quesIds);
 
@@ -28,5 +28,8 @@ public interface QuesService extends IService<QuesEntity> {
      * 通过labelId获取所有ques
      */
     List<QuesLabelTo> listByLabelId(Long labelId);
+
+    QuesAnswerVo queryLastedQuesAndAnswer();
+
 }
 

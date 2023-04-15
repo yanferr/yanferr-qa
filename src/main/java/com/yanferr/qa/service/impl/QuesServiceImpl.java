@@ -11,6 +11,7 @@ import com.yanferr.qa.vo.QuesAnswerVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -52,28 +53,34 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Override
     @Transactional
-    public void saveQuestion(QuesAnswerVo quesVo) {
-        // 1.保存答案
+    public void saveOrUpdateQuestion(QuesAnswerVo quesVo) {
         AnswerEntity answerEntity = new AnswerEntity();
-        answerEntity.setAnswer(quesVo.getAnswer());
-        answerService.save(answerEntity);
-        // 2.保存问题
+        BeanUtils.copyProperties(quesVo,answerEntity);
         QuesEntity quesEntity = new QuesEntity();
-        quesEntity.setUpdateTime(new Date());
-        quesEntity.setCreateTime(new Date());
-        quesEntity.setAnswerId(answerEntity.getAnswerId());
         BeanUtils.copyProperties(quesVo,quesEntity);
-        this.save(quesEntity);
+        quesEntity.setUpdateTime(new Date());
+        if(quesVo.getQuesId()!=null && quesVo.getAnswerId()!=null){
+            // 更新操作
+            answerService.updateById(answerEntity);
+            this.updateById(quesEntity);
+
+        }else{
+            // 保存操作
+            quesEntity.setCreateTime(new Date());
+            answerService.save(answerEntity);
+            quesEntity.setAnswerId(answerEntity.getAnswerId());
+            this.save(quesEntity);
+        }
 
         // 3.保存标签关联关系
-        if(quesVo.getLabelIds()!=null){
-            for (long labelId : quesVo.getLabelIds()) {
-                QuesLabelRelationEntity entity = new QuesLabelRelationEntity();
-                entity.setQuesId(quesEntity.getQuesId());
-                entity.setLabelId(labelId);
-                quesLabelRelationService.save(entity);
-            }
-        }
+        // if(quesVo.getLabelIds()!=null){
+        //     for (long labelId : quesVo.getLabelIds()) {
+        //         QuesLabelRelationEntity entity = new QuesLabelRelationEntity();
+        //         entity.setQuesId(quesEntity.getQuesId());
+        //         entity.setLabelId(labelId);
+        //         quesLabelRelationService.save(entity);
+        //     }
+        // }
 
     }
 
@@ -124,6 +131,19 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             return null;
         }
 
+    }
+
+    @Override
+    public QuesAnswerVo queryLastedQuesAndAnswer() {
+        QuesEntity quesEntity = this.baseMapper.selectOne(
+                new QueryWrapper<QuesEntity>()
+                        .orderByDesc("create_time").last("LIMIT 1"));
+        AnswerEntity answerEntity = answerService.getBaseMapper()
+                .selectOne(new QueryWrapper<AnswerEntity>().eq("answer_id",quesEntity.getAnswerId()));
+        QuesAnswerVo quesAnswerVo = new QuesAnswerVo();
+        BeanUtils.copyProperties(answerEntity,quesAnswerVo);
+        BeanUtils.copyProperties(quesEntity,quesAnswerVo);
+        return quesAnswerVo;
     }
 
 

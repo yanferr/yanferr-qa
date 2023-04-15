@@ -4,18 +4,11 @@ import java.util.*;
 
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
-import com.yanferr.qa.entity.AnswerEntity;
-import com.yanferr.qa.service.AnswerService;
-import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.service.QuesService;
@@ -34,7 +27,17 @@ public class QuesController {
     @Autowired
     private QuesService quesService;
 
+    /**
+     * 查询最近一次提交的问题和答案
+     * @return
+     */
+    @GetMapping("/lasted")
+    public R queryLastedQuesAndAnswer(){
 
+        QuesAnswerVo data = quesService.queryLastedQuesAndAnswer();
+
+        return R.ok().put("data",data);
+    }
     /**
      * 列表
      */
@@ -78,7 +81,7 @@ public class QuesController {
             });
             return R.error(400, "表单提交信息不合法").put("data", map);
         } else {
-            quesService.saveQuestion(quesVo);
+            quesService.saveOrUpdateQuestion(quesVo);
         }
         return R.ok();
     }

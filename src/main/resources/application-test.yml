@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     username: root
-    password: C1mBCwvqpO-!
-    url: jdbc:mysql://47.97.21.93:3306/qa
+    password: root
+    url: jdbc:mysql://localhost:3306/qa
     driver-class-name: com.mysql.jdbc.Driver
 
   application:
