@@ -8,10 +8,8 @@ import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.service.QuesLabelRelationService;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -144,6 +142,11 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         BeanUtils.copyProperties(answerEntity,quesAnswerVo);
         BeanUtils.copyProperties(quesEntity,quesAnswerVo);
         return quesAnswerVo;
+    }
+
+    @Override
+    public QuesAnswerVo backOrFront(int pageIndex) {
+        return this.baseMapper.queryBackOrFront(pageIndex);
     }
 
 

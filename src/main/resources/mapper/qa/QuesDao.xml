@@ -12,12 +12,31 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
+
     <select id="selectDistinctQuesByQuesId" resultType="com.yanferr.qa.entity.QuesLabelRelationEntity">
         SELECT
             max(label_id) label_id,ques_id
         FROM
             `tb_ques_label_relation`
         group by ques_id
+    </select>
+    <select id="queryBackOrFront" resultType="com.yanferr.qa.vo.QuesAnswerVo">
+        SELECT
+        q.ques_id,
+        q.ques,
+        q.source,
+        q.create_time,
+        q.scene,
+        a.answer_id,
+        a.answer
+        FROM
+        tb_ques q,
+        tb_answer a
+        WHERE
+        q.answer_id = a.answer_id
+        ORDER BY
+        q.create_time DESC
+        LIMIT #{pageIndex},1
     </select>
 
 

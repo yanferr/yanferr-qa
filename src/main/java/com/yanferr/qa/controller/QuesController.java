@@ -14,6 +14,7 @@ import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.service.QuesService;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 
 /**
@@ -38,6 +39,18 @@ public class QuesController {
 
         return R.ok().put("data",data);
     }
+    /**
+     * 查询上一次或下一次提交的问题和答案
+     * @return
+     */
+    @GetMapping("/backOrFront")
+    public R queryBackQuesAndAnswer(@PathParam("pageIndex") int pageIndex){
+
+        QuesAnswerVo data = quesService.backOrFront(pageIndex);
+
+        return R.ok().put("data",data);
+    }
+
     /**
      * 列表
      */
