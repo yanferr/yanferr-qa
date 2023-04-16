@@ -43,7 +43,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
-                new QueryWrapper<QuesEntity>()
+                new QueryWrapper<QuesEntity>().orderByDesc("create_time")
         );
 
         return new PageUtils(page);
