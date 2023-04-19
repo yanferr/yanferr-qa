@@ -32,5 +32,8 @@ public interface QuesService extends IService<QuesEntity> {
     QuesAnswerVo queryLastedQuesAndAnswer();
 
     QuesAnswerVo backOrFront(int params);
+
+    List<QuesEntity> findQuesWithin(String search);
+
 }
 

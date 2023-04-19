@@ -6,6 +6,8 @@ import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.EAN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,33 @@ import javax.websocket.server.PathParam;
 public class QuesController {
     @Autowired
     private QuesService quesService;
+
+    /**
+     *
+     * 模糊查询
+     * @param search
+     * @return
+     */
+    @GetMapping("/search")
+    public R search(@PathParam("search") String search){
+        search = search.trim();
+        List<QuesEntity> quesList = null;
+        // 如果是数字a，返回a天内的问题
+        if(StringUtils.isNumeric(search) && Integer.parseInt(search) < 370){
+            quesList = quesService.findQuesWithin(search);
+            return R.ok().put("data",quesList);
+        }
+        // 如果是.开头的，则代表日期,返回该日期对应的问题
+        // if(search.startsWith(".")){
+        //     search = search.substring(1);
+        //     String[] dates = search.split("\\s+");
+        //
+        // }
+        // 其他则为字符串，则模糊查询
+        return null;
+
+    }
+
 
     /**
      * 查询最近一次提交的问题和答案

@@ -38,6 +38,11 @@
         q.create_time DESC
         LIMIT #{pageIndex},1
     </select>
+    <select id="selectQuesWithin" resultType="com.yanferr.qa.entity.QuesEntity">
+        SELECT * FROM `tb_ques`
+        where datediff(date(now()),date(create_time)) >=0
+        and datediff(date(now()),date(create_time)) <= #{p}
+    </select>
 
 
 </mapper>

@@ -39,6 +39,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Autowired
     private QuesLabelRelationService quesLabelRelationService;
 
+    @Autowired
+    private QuesDao quesDao;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<QuesEntity> page = this.page(
@@ -147,6 +150,13 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Override
     public QuesAnswerVo backOrFront(int pageIndex) {
         return this.baseMapper.queryBackOrFront(pageIndex);
+    }
+
+    @Override
+    public List<QuesEntity> findQuesWithin(String search) {
+        QueryWrapper<QuesEntity> queryWrapper = new QueryWrapper<>();
+
+        return this.baseMapper.selectQuesWithin(Integer.parseInt(search));
     }
 
 
