@@ -28,24 +28,24 @@ public class LabelServiceImpl extends ServiceImpl<LabelDao, LabelEntity> impleme
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        // IPage<LabelEntity> page = this.page(
-        //         new Query<LabelEntity>().getPage(params),
-        //         new QueryWrapper<LabelEntity>()
-        // );
-        //
-        // return new PageUtils(page);
-        String key = (String) params.get("key");
-        QueryWrapper<LabelEntity> queryWrapper = new QueryWrapper<>();
-
-        // select * from pms_brand where brand_id = key or name like %key%
-        if(!StringUtils.isEmpty(key)){
-            queryWrapper.eq("label_id",key).or().like("label_name",key);
-        }
         IPage<LabelEntity> page = this.page(
                 new Query<LabelEntity>().getPage(params),
-                queryWrapper
+                new QueryWrapper<LabelEntity>()
         );
+
         return new PageUtils(page);
+        // String key = (String) params.get("key");
+        // QueryWrapper<LabelEntity> queryWrapper = new QueryWrapper<>();
+        //
+        // // select * from pms_brand where brand_id = key or name like %key%
+        // if(!StringUtils.isEmpty(key)){
+        //     queryWrapper.eq("label_id",key).or().like("label_name",key);
+        // }
+        // IPage<LabelEntity> page = this.page(
+        //         new Query<LabelEntity>().getPage(params),
+        //         queryWrapper
+        // );
+        // return new PageUtils(page);
     }
 
     /**

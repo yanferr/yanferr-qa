@@ -1,11 +1,13 @@
 package com.yanferr.qa.vo;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.yanferr.qa.entity.LabelEntity;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 public class QuesAnswerVo {
@@ -28,6 +30,6 @@ public class QuesAnswerVo {
 
     // tb_ques_label_relation
     // @NotNull(message = "至少选择一个标签")
-    private long[] labelIds;
+    private String[] labelNames;
 
 }

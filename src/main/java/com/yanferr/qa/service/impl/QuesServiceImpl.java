@@ -1,5 +1,7 @@
 package com.yanferr.qa.service.impl;
 
+import com.yanferr.qa.dao.LabelDao;
+import com.yanferr.qa.dao.QuesLabelRelationDao;
 import com.yanferr.qa.entity.AnswerEntity;
 import com.yanferr.qa.entity.LabelEntity;
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
@@ -10,6 +12,7 @@ import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,6 +45,12 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Autowired
     private QuesDao quesDao;
 
+    @Autowired
+    private LabelDao labelDao;
+
+    @Autowired
+    private QuesLabelRelationDao quesLabelRelationDao;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<QuesEntity> page = this.page(
@@ -72,16 +81,27 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             quesEntity.setAnswerId(answerEntity.getAnswerId());
             this.save(quesEntity);
         }
+        // 3.保存标签和关联关系
+        if(quesVo.getLabelNames()!=null && quesVo.getLabelNames().length!=0){
+            for (String labelName : quesVo.getLabelNames()) {
 
-        // 3.保存标签关联关系
-        // if(quesVo.getLabelIds()!=null){
-        //     for (long labelId : quesVo.getLabelIds()) {
-        //         QuesLabelRelationEntity entity = new QuesLabelRelationEntity();
-        //         entity.setQuesId(quesEntity.getQuesId());
-        //         entity.setLabelId(labelId);
-        //         quesLabelRelationService.save(entity);
-        //     }
-        // }
+                LabelEntity labelEntity = labelDao.selectOne(new QueryWrapper<LabelEntity>().
+                        eq("label_name", labelName));
+                // 找不到就新增一个标签
+                if(labelEntity == null){
+
+                    labelEntity = new LabelEntity();
+                    labelEntity.setLabelName(labelName);
+                    labelDao.insert(labelEntity);
+                }
+
+                // 保存关联关系
+                QuesLabelRelationEntity relation = new QuesLabelRelationEntity();
+                relation.setQuesId(quesEntity.getQuesId());
+                relation.setLabelId(labelEntity.getLabelId());
+                quesLabelRelationDao.insert(relation);
+            }
+        }
 
     }
 

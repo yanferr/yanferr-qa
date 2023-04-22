@@ -3,15 +3,15 @@ server:
 spring:
   datasource:
     username: root
-    password: C1mBCwvqpO-!
-    url: jdbc:mysql://47.97.21.93:3306/qa
+    password: root
+    url: jdbc:mysql://localhost:3306/qa
     driver-class-name: com.mysql.jdbc.Driver
 
   application:
     name: yanferr-qa
   # 配置日期类型返回格式
   jackson:
-    date-format: yy/MM/dd
+    date-format: yyyy-MM-dd HH:mm
     time-zone: GMT+8   # 24小时制
 
 mybatis-plus:
@@ -25,7 +25,7 @@ mybatis-plus:
 
 logging: #开启日志打印，能看到sql
   level:
-    com.yanferr.user: debug
+    com.yanferr.qa: debug
 
 
 
