@@ -8,11 +8,7 @@ import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.yanferr.qa.entity.LabelEntity;
 import com.yanferr.qa.service.LabelService;
@@ -28,6 +24,17 @@ import com.yanferr.qa.service.LabelService;
 public class LabelController {
     @Autowired
     private LabelService labelService;
+
+    /**
+     * 查询quesId所属的标签
+     * @param quesId
+     * @return
+     */
+    @GetMapping("/labels/{quesId}")
+    public R list(@PathVariable("quesId") Long quesId){
+        List<LabelEntity> data = labelService.listWithQuesId(quesId);
+        return R.ok().put("data",data);
+    }
 
     @RequestMapping("/list/tree")
     public R list() {

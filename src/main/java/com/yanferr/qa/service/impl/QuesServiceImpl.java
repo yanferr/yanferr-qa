@@ -65,35 +65,41 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Transactional
     public void saveOrUpdateQuestion(QuesAnswerVo quesVo) {
         AnswerEntity answerEntity = new AnswerEntity();
-        BeanUtils.copyProperties(quesVo,answerEntity);
+        BeanUtils.copyProperties(quesVo, answerEntity);
         QuesEntity quesEntity = new QuesEntity();
-        BeanUtils.copyProperties(quesVo,quesEntity);
+        BeanUtils.copyProperties(quesVo, quesEntity);
         quesEntity.setUpdateTime(new Date());
-        if(quesVo.getQuesId()!=null && quesVo.getAnswerId()!=null){
+        if (quesVo.getQuesId() != null && quesVo.getAnswerId() != null) {
             // 更新操作
             answerService.updateById(answerEntity);
             this.updateById(quesEntity);
 
-        }else{
+        } else {
             // 保存操作
             quesEntity.setCreateTime(new Date());
             answerService.save(answerEntity);
             quesEntity.setAnswerId(answerEntity.getAnswerId());
             this.save(quesEntity);
         }
+
+        // 先删除关联关系
+        quesLabelRelationDao.delete(new QueryWrapper<QuesLabelRelationEntity>()
+                .eq("ques_id", quesEntity.getQuesId()));
         // 3.保存标签和关联关系
-        if(quesVo.getLabelNames()!=null && quesVo.getLabelNames().length!=0){
+        if (quesVo.getLabelNames() != null && quesVo.getLabelNames().length != 0) {
             for (String labelName : quesVo.getLabelNames()) {
 
                 LabelEntity labelEntity = labelDao.selectOne(new QueryWrapper<LabelEntity>().
                         eq("label_name", labelName));
                 // 找不到就新增一个标签
-                if(labelEntity == null){
+                if (labelEntity == null) {
 
                     labelEntity = new LabelEntity();
                     labelEntity.setLabelName(labelName);
                     labelDao.insert(labelEntity);
                 }
+
+
 
                 // 保存关联关系
                 QuesLabelRelationEntity relation = new QuesLabelRelationEntity();
@@ -108,11 +114,14 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Override
     @Transactional
     public void removeQAByIds(List<Long> quesIds) {
-        // 删除对应答案
+        // 删除对应答案和对应的标签关系
         for (Long quesId : quesIds) {
             QuesEntity ques = this.getById(quesId);
             answerService.removeById(ques.getAnswerId());
+            quesLabelRelationDao.delete(new QueryWrapper<QuesLabelRelationEntity>()
+                    .eq("ques_id",quesId));
         }
+
         this.removeByIds(quesIds);
     }
 
@@ -122,20 +131,20 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Override
     public List<QuesLabelTo> listByLabelId(Long labelId) {  // todo：循环查库
 
-         // 根据所有子标签的id获取所有关联关系实体
+        // 根据所有子标签的id获取所有关联关系实体
         // List<QuesLabelRelationEntity> entities = quesLabelRelationService.list(new QueryWrapper<QuesLabelRelationEntity>().in("label_id", labelIds));
         // 存在quesEntity重复的问题，需要手动SQL去重
-        List<QuesLabelRelationEntity> entities=null;
-        if(labelId!=0){ // todo：会出现quesEntity重复，需要手动写SQL
+        List<QuesLabelRelationEntity> entities = null;
+        if (labelId != 0) { // todo：会出现quesEntity重复，需要手动写SQL
             List<Long> labelIds = labelService.getChildrenLabelIdsByLabelId(labelId);
             labelIds.add(labelId);
             entities = quesLabelRelationService.list(new QueryWrapper<QuesLabelRelationEntity>().in("label_id", labelIds));
 
 
-        }else{
-             entities = this.baseMapper.selectDistinctQuesByQuesId();
+        } else {
+            entities = this.baseMapper.selectDistinctQuesByQuesId();
         }
-        if(entities.size() !=0){
+        if (entities.size() != 0) {
             // 根据
             List<QuesLabelTo> toList = entities.stream().map(relationEntity -> {
                 QuesLabelTo quesLabelTo = new QuesLabelTo();
@@ -148,7 +157,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                 return quesLabelTo;
             }).collect(Collectors.toList());
             return toList;
-        }else{
+        } else {
             return null;
         }
 
@@ -160,10 +169,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                 new QueryWrapper<QuesEntity>()
                         .orderByDesc("create_time").last("LIMIT 1"));
         AnswerEntity answerEntity = answerService.getBaseMapper()
-                .selectOne(new QueryWrapper<AnswerEntity>().eq("answer_id",quesEntity.getAnswerId()));
+                .selectOne(new QueryWrapper<AnswerEntity>().eq("answer_id", quesEntity.getAnswerId()));
         QuesAnswerVo quesAnswerVo = new QuesAnswerVo();
-        BeanUtils.copyProperties(answerEntity,quesAnswerVo);
-        BeanUtils.copyProperties(quesEntity,quesAnswerVo);
+        BeanUtils.copyProperties(answerEntity, quesAnswerVo);
+        BeanUtils.copyProperties(quesEntity, quesAnswerVo);
         return quesAnswerVo;
     }
 
@@ -181,7 +190,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Override
     public List<QuesEntity> findQuesLike(String search) {
-        return this.baseMapper.selectList(new QueryWrapper<QuesEntity>().like("ques",search));
+        return this.baseMapper.selectList(new QueryWrapper<QuesEntity>().like("ques", search));
     }
 
 

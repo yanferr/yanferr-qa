@@ -8,6 +8,10 @@
         <result property="labelId" column="label_id"/>
         <result property="labelName" column="label_name"/>
     </resultMap>
+    <select id="selectLabelsByQuesId" resultType="com.yanferr.qa.entity.LabelEntity">
+        SELECT * FROM tb_ques_label_relation a,tb_ques b,tb_label c
+        where a.ques_id = b.ques_id and a.label_id = c.label_id and a.ques_id = #{quesId}
+    </select>
 
 
 </mapper>

@@ -2,6 +2,7 @@ package com.yanferr.qa.service.impl;
 
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Array;
@@ -25,6 +26,9 @@ import javax.swing.text.html.parser.Entity;
 
 @Service("labelService")
 public class LabelServiceImpl extends ServiceImpl<LabelDao, LabelEntity> implements LabelService {
+
+    @Autowired
+    LabelDao labelDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -70,6 +74,12 @@ public class LabelServiceImpl extends ServiceImpl<LabelDao, LabelEntity> impleme
         }
         return ans;
     }
+
+    @Override
+    public List<LabelEntity> listWithQuesId(Long quesId) {
+        return labelDao.selectLabelsByQuesId(quesId);
+    }
+
     /**
      * 返回树节点
      * @param parentId

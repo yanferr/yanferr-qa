@@ -22,5 +22,7 @@ public interface LabelService extends IService<LabelEntity> {
 
     List<Long> getChildrenLabelIdsByLabelId(Long labelId);
 
+    List<LabelEntity> listWithQuesId(Long quesId);
+
 }
 
