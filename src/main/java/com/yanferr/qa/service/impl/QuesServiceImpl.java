@@ -159,5 +159,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         return this.baseMapper.selectQuesWithin(Integer.parseInt(search));
     }
 
+    @Override
+    public List<QuesEntity> findQuesLike(String search) {
+        return this.baseMapper.selectList(new QueryWrapper<QuesEntity>().like("ques",search));
+    }
+
 
 }

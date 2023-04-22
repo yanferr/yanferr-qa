@@ -38,13 +38,17 @@ public class QuesController {
      */
     @GetMapping("/search")
     public R search(@PathParam("search") String search){
+        if(StringUtils.isEmpty(search)){
+           return R.ok().put("data",quesService.list());
+        }
         search = search.trim();
         List<QuesEntity> quesList = null;
-        // 如果是数字a，返回a天内的问题
+        // 如果是整数a，返回a天内的问题；
         if(StringUtils.isNumeric(search) && Integer.parseInt(search) < 370){
             quesList = quesService.findQuesWithin(search);
             return R.ok().put("data",quesList);
         }
+
         // 如果是.开头的，则代表日期,返回该日期对应的问题
         // if(search.startsWith(".")){
         //     search = search.substring(1);
@@ -52,7 +56,8 @@ public class QuesController {
         //
         // }
         // 其他则为字符串，则模糊查询
-        return null;
+        quesList = quesService.findQuesLike(search);
+        return R.ok().put("data",quesList);
 
     }
 

@@ -11,7 +11,7 @@ spring:
     name: yanferr-qa
   # 配置日期类型返回格式
   jackson:
-    date-format: yyyy-MM-dd HH:mm
+    date-format: yy/MM/dd
     time-zone: GMT+8   # 24小时制
 
 mybatis-plus:

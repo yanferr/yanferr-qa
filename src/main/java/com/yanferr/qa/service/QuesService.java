@@ -35,5 +35,7 @@ public interface QuesService extends IService<QuesEntity> {
 
     List<QuesEntity> findQuesWithin(String search);
 
+    List<QuesEntity> findQuesLike(String search);
+
 }
 

@@ -25,5 +25,5 @@ public interface QuesDao extends BaseMapper<QuesEntity> {
 
     QuesAnswerVo queryBackOrFront(@Param("pageIndex") int pageIndex);
 
-    List<QuesEntity> selectQuesWithin(@Param("p") int day);
+    List<QuesEntity> selectQuesWithin( int day);
 }
