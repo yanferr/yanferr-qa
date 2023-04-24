@@ -48,5 +48,7 @@ public class QuesEntity implements Serializable {
 	private Date updateTime;
 
 	private String ques;
-
+	private Date lastView;
+	private Integer memoryLevel;
+	private Integer highLight;
 }

@@ -61,6 +61,15 @@ public class QuesController {
 
     }
 
+    /**
+     * 更新lastView
+     */
+    @GetMapping("/updateLastView/{quesId}")
+    public R updateLastView(@PathVariable("quesId") Long quesId){
+        quesService.updateLastView(quesId);
+        return R.ok();
+    }
+
 
     /**
      * 查询最近一次提交的问题和答案
@@ -105,6 +114,7 @@ public class QuesController {
 
         return R.ok().put("ques", ques);
     }
+
     /**
      * 通过labelId获取所有labelId及labelId子下的ques，以及所有问题对应的标签名字
      */

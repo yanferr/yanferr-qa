@@ -53,12 +53,96 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        // 计算highLight;
+        setHighLight();
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
                 new QueryWrapper<QuesEntity>().orderByDesc("create_time")
         );
-
         return new PageUtils(page);
+    }
+
+    private void setHighLight() {
+        List<QuesEntity> list = this.list();
+        long now = new Date().getTime();
+
+        for (QuesEntity quesEntity : list) {
+            long lastView = quesEntity.getLastView().getTime();
+            long diff = now-lastView;
+            if(quesEntity.getMemoryLevel()==1){
+                if(diff>5*60*1000){
+                    if(diff<5*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==2){
+                if(diff>30*60*1000){
+                    if(diff<30*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==3){
+                if(diff>12*60*60*1000){
+                    if(diff<12*60*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==4){
+                if(diff>24*60*60*1000){
+                    if(diff<24*60*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==5){
+                if(diff>2*24*60*60*1000){
+                    if(diff<2*24*60*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==6){
+                if(diff>4*24*60*60*1000){
+                    if(diff<4*24*60*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==7){
+                if(diff>7*24*60*60*1000){
+                    if(diff<7*24*60*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+            if(quesEntity.getMemoryLevel()==8){
+                if(diff>15*24*60*60*1000){
+                    if(diff<15*24*60*60*1000+12*60*60*1000){
+                        quesEntity.setHighLight(1);
+                    }else{
+                        quesEntity.setHighLight(2);
+                    }
+                }
+            }
+        }
+        this.updateBatchById(list);
     }
 
     @Override
@@ -77,6 +161,8 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         } else {
             // 保存操作
             quesEntity.setCreateTime(new Date());
+            quesEntity.setLastView(new Date());
+            quesEntity.setMemoryLevel(1);
             answerService.save(answerEntity);
             quesEntity.setAnswerId(answerEntity.getAnswerId());
             this.save(quesEntity);
@@ -98,9 +184,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                     labelEntity.setLabelName(labelName);
                     labelDao.insert(labelEntity);
                 }
-
-
-
                 // 保存关联关系
                 QuesLabelRelationEntity relation = new QuesLabelRelationEntity();
                 relation.setQuesId(quesEntity.getQuesId());
@@ -124,6 +207,8 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
         this.removeByIds(quesIds);
     }
+
+
 
     /**
      * 通过labelId获取所有ques
@@ -191,6 +276,18 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Override
     public List<QuesEntity> findQuesLike(String search) {
         return this.baseMapper.selectList(new QueryWrapper<QuesEntity>().like("ques", search));
+    }
+
+    /**
+     * 更新lastView
+     * @param quesId
+     */
+    @Override
+    public void updateLastView(Long quesId) {
+        QuesEntity quesEntity = new QuesEntity();
+        quesEntity.setQuesId(quesId);
+        quesEntity.setLastView(new Date());
+        this.updateById(quesEntity);
     }
 
 

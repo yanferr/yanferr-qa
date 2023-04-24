@@ -37,5 +37,7 @@ public interface QuesService extends IService<QuesEntity> {
 
     List<QuesEntity> findQuesLike(String search);
 
+    void updateLastView(Long quesId);
+
 }
 
