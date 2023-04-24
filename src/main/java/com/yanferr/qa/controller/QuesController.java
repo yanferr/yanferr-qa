@@ -64,9 +64,9 @@ public class QuesController {
     /**
      * 更新lastView
      */
-    @GetMapping("/updateLastView/{quesId}")
-    public R updateLastView(@PathVariable("quesId") Long quesId){
-        quesService.updateLastView(quesId);
+    @GetMapping("/updateHighLight/{quesId}")
+    public R updateHighLight(@PathVariable("quesId") Long quesId){
+        quesService.updateHighLight(quesId);
         return R.ok();
     }
 

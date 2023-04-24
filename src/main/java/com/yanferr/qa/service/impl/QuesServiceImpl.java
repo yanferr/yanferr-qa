@@ -67,76 +67,79 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         long now = new Date().getTime();
 
         for (QuesEntity quesEntity : list) {
+            if (quesEntity.getHighLight() != null && quesEntity.getHighLight() == -1) { // 永久不高亮
+                continue;
+            }
             long lastView = quesEntity.getLastView().getTime();
-            long diff = now-lastView;
-            if(quesEntity.getMemoryLevel()==1){
-                if(diff>5*60*1000){
-                    if(diff<5*60*1000+12*60*60*1000){
+            long diff = now - lastView;
+            if (quesEntity.getMemoryLevel() == 1) {
+                if (diff > 5 * 60 * 1000) {
+                    if (diff < 5 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==2){
-                if(diff>30*60*1000){
-                    if(diff<30*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 2) {
+                if (diff > 30 * 60 * 1000) {
+                    if (diff < 30 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==3){
-                if(diff>12*60*60*1000){
-                    if(diff<12*60*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 3) {
+                if (diff > 12 * 60 * 60 * 1000) {
+                    if (diff < 12 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==4){
-                if(diff>24*60*60*1000){
-                    if(diff<24*60*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 4) {
+                if (diff > 24 * 60 * 60 * 1000) {
+                    if (diff < 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==5){
-                if(diff>2*24*60*60*1000){
-                    if(diff<2*24*60*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 5) {
+                if (diff > 2 * 24 * 60 * 60 * 1000) {
+                    if (diff < 2 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==6){
-                if(diff>4*24*60*60*1000){
-                    if(diff<4*24*60*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 6) {
+                if (diff > 4 * 24 * 60 * 60 * 1000) {
+                    if (diff < 4 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==7){
-                if(diff>7*24*60*60*1000){
-                    if(diff<7*24*60*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 7) {
+                if (diff > 7 * 24 * 60 * 60 * 1000) {
+                    if (diff < 7 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
             }
-            if(quesEntity.getMemoryLevel()==8){
-                if(diff>15*24*60*60*1000){
-                    if(diff<15*24*60*60*1000+12*60*60*1000){
+            if (quesEntity.getMemoryLevel() == 8) {
+                if (diff > 15 * 24 * 60 * 60 * 1000) {
+                    if (diff < 15 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
-                    }else{
+                    } else {
                         quesEntity.setHighLight(2);
                     }
                 }
@@ -202,13 +205,11 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             QuesEntity ques = this.getById(quesId);
             answerService.removeById(ques.getAnswerId());
             quesLabelRelationDao.delete(new QueryWrapper<QuesLabelRelationEntity>()
-                    .eq("ques_id",quesId));
+                    .eq("ques_id", quesId));
         }
 
         this.removeByIds(quesIds);
     }
-
-
 
     /**
      * 通过labelId获取所有ques
@@ -278,16 +279,31 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         return this.baseMapper.selectList(new QueryWrapper<QuesEntity>().like("ques", search));
     }
 
-    /**
-     * 更新lastView
-     * @param quesId
-     */
+
     @Override
-    public void updateLastView(Long quesId) {
-        QuesEntity quesEntity = new QuesEntity();
-        quesEntity.setQuesId(quesId);
-        quesEntity.setLastView(new Date());
-        this.updateById(quesEntity);
+    @Transactional
+    public void updateHighLight(Long quesId) {
+        // 如果高亮等级为2则点击后降级，如果为1则点击后升级，如果为0则不更新lastView
+        QuesEntity quesEntity = this.getById(quesId);
+        QuesEntity updateEntity = new QuesEntity();
+        updateEntity.setQuesId(quesEntity.getQuesId());
+        Integer highLight = quesEntity.getHighLight();
+        if (highLight == 0 || highLight == -1) return;
+        updateEntity.setLastView(new Date());
+        if (highLight == 1) {
+            if (quesEntity.getMemoryLevel() == 8) {
+                updateEntity.setHighLight(-1); // 永久不高亮
+                updateEntity.setMemoryLevel(9);
+                this.updateById(updateEntity);
+                return;
+            }
+            updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() + 1);
+            updateEntity.setHighLight(0);
+        } else if (highLight == 2) {
+            updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() == 0 ? quesEntity.getMemoryLevel() : quesEntity.getMemoryLevel() - 1);
+            updateEntity.setHighLight(0);
+        }
+        this.updateById(updateEntity);
     }
 
 
