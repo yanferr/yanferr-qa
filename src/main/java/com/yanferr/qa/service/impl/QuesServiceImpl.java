@@ -145,7 +145,13 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                 }
             }
         }
-        this.updateBatchById(list);
+        List<QuesEntity> collect = list.stream().map(item -> {
+            QuesEntity quesEntity = new QuesEntity();
+            quesEntity.setQuesId(item.getQuesId());
+            quesEntity.setHighLight(item.getHighLight());
+            return quesEntity;
+        }).collect(Collectors.toList());
+        this.updateBatchById(collect);
     }
 
     @Override
