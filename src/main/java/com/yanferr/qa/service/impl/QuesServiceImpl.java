@@ -70,6 +70,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             if (quesEntity.getHighLight() != null && quesEntity.getHighLight() == -1) { // 永久不高亮
                 continue;
             }
+            if (quesEntity.getMemoryLevel() == 0 || quesEntity.getMemoryLevel() == 9) { // 不加入记忆计划或记忆等级达到最高
+                continue;
+            }
             long lastView = quesEntity.getLastView().getTime();
             long diff = now - lastView;
             if (quesEntity.getMemoryLevel() == 1) {
@@ -306,11 +309,25 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() + 1);
             updateEntity.setHighLight(0);
         } else if (highLight == 2) {
-            updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() == 0 ? quesEntity.getMemoryLevel() : quesEntity.getMemoryLevel() - 1);
+            updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() == 1 ? quesEntity.getMemoryLevel() : quesEntity.getMemoryLevel() - 1);
             updateEntity.setHighLight(0);
         }
         this.updateById(updateEntity);
     }
 
+    /**
+     * 取消高亮
+     */
+    @Override
+    public boolean cancelHL(List<Long> quesIds) {
+        ArrayList<QuesEntity> quesEntities = new ArrayList<>();
+        for (Long quesId : quesIds) {
+            QuesEntity quesEntity = new QuesEntity();
+            quesEntity.setQuesId(quesId);
+            quesEntity.setHighLight(-1);
+            quesEntities.add(quesEntity);
+        }
 
+        return this.updateBatchById(quesEntities);
+    }
 }

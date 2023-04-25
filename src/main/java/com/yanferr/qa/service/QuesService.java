@@ -41,5 +41,7 @@ public interface QuesService extends IService<QuesEntity> {
 
 
     void updateHighLight(Long quesId);
+
+    boolean cancelHL(List<Long> asList);
 }
 

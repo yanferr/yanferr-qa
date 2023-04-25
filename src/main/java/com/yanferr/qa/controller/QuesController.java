@@ -30,6 +30,8 @@ public class QuesController {
     @Autowired
     private QuesService quesService;
 
+
+
     /**
      *
      * 模糊查询
@@ -164,6 +166,16 @@ public class QuesController {
         quesService.removeQAByIds(Arrays.asList(quesIds));
 
         return R.ok();
+    }
+
+    /**
+     * 取消高亮
+     */
+    @RequestMapping("/cancelHL")
+    public R cancelHL(@RequestBody Long[] quesIds) {
+        // 查询answerIds 然后删除
+        boolean result = quesService.cancelHL(Arrays.asList(quesIds));
+        return result?R.ok():R.error("取消高亮失败");
     }
 
 }
