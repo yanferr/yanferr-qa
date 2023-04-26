@@ -146,6 +146,14 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                     }
                 }
             }
+
+            if (quesEntity.getMemoryLevel() >= 9) {
+                if (diff > 30L * 24 * 60 * 60 * 1000) {
+                    if (diff < 30L * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
+                        quesEntity.setHighLight(1);
+                    }
+                }
+            }
         }
         List<QuesEntity> collect = list.stream().map(item -> {
             QuesEntity quesEntity = new QuesEntity();
