@@ -6,7 +6,6 @@ import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -43,5 +42,7 @@ public interface QuesService extends IService<QuesEntity> {
     void updateHighLight(Long quesId);
 
     boolean cancelHL(List<Long> asList);
+
+    boolean joinMemory(boolean active, Long quesId);
 }
 

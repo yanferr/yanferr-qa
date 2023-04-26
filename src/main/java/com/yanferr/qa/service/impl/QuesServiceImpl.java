@@ -12,7 +12,6 @@ import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -300,9 +299,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         if (highLight == 0 || highLight == -1) return;
         updateEntity.setLastView(new Date());
         if (highLight == 1) {
-            if (quesEntity.getMemoryLevel() == 8) {
+            if (quesEntity.getMemoryLevel() ==12) { // 达到最高等级
                 updateEntity.setHighLight(-1); // 永久不高亮
-                updateEntity.setMemoryLevel(9);
+                updateEntity.setMemoryLevel(13);
                 this.updateById(updateEntity);
                 return;
             }
@@ -329,5 +328,19 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         }
 
         return this.updateBatchById(quesEntities);
+    }
+
+    @Override
+    public boolean joinMemory(boolean active, Long quesId) {
+        // 实现逻辑：打开只需更新lastView和设置highLight=0,关闭只需设置highLight=-1
+        QuesEntity quesEntity = new QuesEntity();
+        quesEntity.setQuesId(quesId);
+        if(active){
+            quesEntity.setHighLight(0);
+            quesEntity.setLastView(new Date());
+        }else{
+            quesEntity.setHighLight(-1);
+        }
+        return this.updateById(quesEntity);
     }
 }

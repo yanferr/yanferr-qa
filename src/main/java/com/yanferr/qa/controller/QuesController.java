@@ -30,7 +30,18 @@ public class QuesController {
     @Autowired
     private QuesService quesService;
 
+    /**
+     * 通过switch开关控制是否加入记忆
+     * @param active
+     * @return
+     */
+    @GetMapping("/joinMemory")
+    public R joinMemory(@PathParam("active") boolean active,@PathParam("quesId") Long quesId){
 
+        boolean result = quesService.joinMemory(active,quesId);
+
+        return result?R.ok():R.error("更新失败");
+    }
 
     /**
      *
