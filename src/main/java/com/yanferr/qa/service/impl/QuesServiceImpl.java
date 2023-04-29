@@ -331,6 +331,14 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         this.updateById(updateEntity);
     }
 
+
+    @Override
+    public void updateHighLightBatch(List<Long> quesIds) {
+        for (Long quesId : quesIds) {
+            updateHighLight(quesId);
+        }
+    }
+
     /**
      * 取消高亮--设置高亮等级为-1
      */
@@ -373,5 +381,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     public boolean topCancel(List<Long> quesIds) {
         return  setHighLightByQuesIds(quesIds,-0);
     }
+
 
 }

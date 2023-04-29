@@ -49,5 +49,7 @@ public interface QuesService extends IService<QuesEntity> {
     boolean top(List<Long> quesIds);
 
     boolean topCancel(List<Long> asList);
+
+    void updateHighLightBatch(List<Long> asList);
 }
 

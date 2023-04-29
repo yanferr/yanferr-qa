@@ -77,6 +77,16 @@ public class QuesController {
         return R.ok();
     }
 
+    /**
+     * 查看接口，批量计算记忆等级，更新lastView
+     */
+    @RequestMapping("/updateHighLightBatch")
+    public R updateHighLightBatch(@RequestBody Long[] quesIds) {
+        quesService.updateHighLightBatch(Arrays.asList(quesIds));
+
+        return R.ok();
+    }
+
 
     /**
      * 查询最近一次提交的问题和答案
