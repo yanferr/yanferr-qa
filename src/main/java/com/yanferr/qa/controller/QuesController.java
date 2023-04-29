@@ -4,8 +4,10 @@ import java.util.*;
 
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
+import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
+import com.yanferr.qa.vo.Search;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.EAN;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,55 +32,53 @@ public class QuesController {
     @Autowired
     private QuesService quesService;
 
+
     /**
      * 通过switch开关控制是否加入记忆
+     *
      * @param active
      * @return
      */
     @GetMapping("/joinMemory")
-    public R joinMemory(@PathParam("active") boolean active,@PathParam("quesId") Long quesId){
+    public R joinMemory(@PathParam("active") boolean active, @PathParam("quesId") Long quesId) {
 
-        boolean result = quesService.joinMemory(active,quesId);
+        boolean result = quesService.joinMemory(active, quesId);
 
-        return result?R.ok():R.error("更新失败");
+        return result ? R.ok() : R.error("更新失败");
     }
 
     /**
-     *
      * 模糊查询
+     *
      * @param search
      * @return
      */
-    @GetMapping("/search")
-    public R search(@PathParam("search") String search){
-        if(StringUtils.isEmpty(search)){
-           return R.ok().put("data",quesService.list());
-        }
-        search = search.trim();
-        List<QuesEntity> quesList = null;
-        // 如果是整数a，返回a天内的问题；
-        if(StringUtils.isNumeric(search) && Integer.parseInt(search) < 370){
-            quesList = quesService.findQuesWithin(search);
-            return R.ok().put("data",quesList);
-        }
+    @PostMapping("/search")
+    public R search(@RequestBody Search search) {
 
-        // 如果是.开头的，则代表日期,返回该日期对应的问题
-        // if(search.startsWith(".")){
-        //     search = search.substring(1);
-        //     String[] dates = search.split("\\s+");
-        //
-        // }
-        // 其他则为字符串，则模糊查询
-        quesList = quesService.findQuesLike(search);
-        return R.ok().put("data",quesList);
+        if (search.getContent() == null &&
+                search.getRecentDay() == null &&
+                search.getLabelName() == null) {
+            return R.ok().put("data", quesService.list());
+        }
+        List<QuesEntity> quesList = quesService.findQuesLike(search);
+        return R.ok().put("data", quesList);
+    }
 
+
+    @GetMapping("/searchLabels")
+    public R searchLabels(@PathParam("labels") String labels) {
+        labels = labels.trim().substring(1);
+        String[] names = labels.split(" ");
+        List<QuesEntity> quesEntities = quesService.getQuesLabelsIn(Arrays.asList(names));
+        return R.ok().put("data", quesEntities);
     }
 
     /**
      * 更新lastView
      */
     @GetMapping("/updateHighLight/{quesId}")
-    public R updateHighLight(@PathVariable("quesId") Long quesId){
+    public R updateHighLight(@PathVariable("quesId") Long quesId) {
         quesService.updateHighLight(quesId);
         return R.ok();
     }
@@ -86,25 +86,28 @@ public class QuesController {
 
     /**
      * 查询最近一次提交的问题和答案
+     *
      * @return
      */
     @GetMapping("/lasted")
-    public R queryLastedQuesAndAnswer(){
+    public R queryLastedQuesAndAnswer() {
 
         QuesAnswerVo data = quesService.queryLastedQuesAndAnswer();
 
-        return R.ok().put("data",data);
+        return R.ok().put("data", data);
     }
+
     /**
      * 查询上一次或下一次提交的问题和答案
+     *
      * @return
      */
     @GetMapping("/backOrFront")
-    public R queryBackQuesAndAnswer(@PathParam("pageIndex") int pageIndex){
+    public R queryBackQuesAndAnswer(@PathParam("pageIndex") int pageIndex) {
 
         QuesAnswerVo data = quesService.backOrFront(pageIndex);
 
-        return R.ok().put("data",data);
+        return R.ok().put("data", data);
     }
 
     /**
@@ -132,9 +135,9 @@ public class QuesController {
      * 通过labelId获取所有labelId及labelId子下的ques，以及所有问题对应的标签名字
      */
     @RequestMapping("/list/{labelId}")
-    public R listByLabelId(@PathVariable Long labelId){
+    public R listByLabelId(@PathVariable Long labelId) {
         List<QuesLabelTo> data = quesService.listByLabelId(labelId);
-        return R.ok().put("data",data);
+        return R.ok().put("data", data);
     }
 
     /**
@@ -186,7 +189,7 @@ public class QuesController {
     public R cancelHL(@RequestBody Long[] quesIds) {
         // 查询answerIds 然后删除
         boolean result = quesService.cancelHL(Arrays.asList(quesIds));
-        return result?R.ok():R.error("取消高亮失败");
+        return result ? R.ok() : R.error("取消高亮失败");
     }
 
 }

@@ -4,6 +4,7 @@ import com.yanferr.qa.entity.QuesEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import com.yanferr.qa.vo.QuesAnswerVo;
+import com.yanferr.qa.vo.Search;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +27,8 @@ public interface QuesDao extends BaseMapper<QuesEntity> {
     QuesAnswerVo queryBackOrFront(@Param("pageIndex") int pageIndex);
 
     List<QuesEntity> selectQuesWithin( int day);
+
+    List<QuesEntity> getQuesLabelsIn(List<String> names);
+
+    List<QuesEntity> findQuesLike(@Param("p") Search search);
 }

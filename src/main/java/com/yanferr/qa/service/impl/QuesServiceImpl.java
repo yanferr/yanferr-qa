@@ -10,6 +10,8 @@ import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.service.QuesLabelRelationService;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
+import com.yanferr.qa.vo.Search;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -181,6 +183,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             // 保存操作
             quesEntity.setCreateTime(new Date());
             quesEntity.setLastView(new Date());
+            quesEntity.setHighLight(0);
             quesEntity.setMemoryLevel(1);
             answerService.save(answerEntity);
             quesEntity.setAnswerId(answerEntity.getAnswerId());
@@ -291,8 +294,11 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     }
 
     @Override
-    public List<QuesEntity> findQuesLike(String search) {
-        return this.baseMapper.selectList(new QueryWrapper<QuesEntity>().like("ques", search));
+    public List<QuesEntity> findQuesLike(Search search) {
+        if (!StringUtils.isEmpty(search.getContent())) {
+            search.setContent(search.getContent().trim());
+        }
+        return this.baseMapper.findQuesLike(search);
     }
 
 
@@ -350,5 +356,11 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             quesEntity.setHighLight(-1);
         }
         return this.updateById(quesEntity);
+    }
+
+    @Override
+    public List<QuesEntity> getQuesLabelsIn(List<String> names) {
+
+        return quesDao.getQuesLabelsIn(names);
     }
 }

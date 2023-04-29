@@ -43,6 +43,62 @@
         where datediff(date(now()),date(create_time))  &lt;= #{day} order by create_time desc
 
     </select>
+    <select id="getQuesLabelsIn" resultType="com.yanferr.qa.entity.QuesEntity">
+        SELECT
+        *
+        FROM
+        tb_ques q
+        RIGHT JOIN (
+        SELECT
+        r.ques_id
+        FROM
+        tb_ques_label_relation r
+        WHERE
+        label_id in ( SELECT l.label_id FROM tb_label l WHERE l.label_name in
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+        )
+        ) t
+        on q.ques_id= t.ques_id
+
+    </select>
+    <select id="findQuesLike" resultType="com.yanferr.qa.entity.QuesEntity">
+        SELECT
+        q.ques_id,
+        q.ques,
+        q.answer_id,
+        q.create_time,
+        q.update_time,
+        q.memory_level,
+        q.last_view,
+        q.high_light
+
+        FROM
+        tb_ques q
+        <if test="p.labelName !=null and p.labelName != ''">
+            RIGHT JOIN (
+            SELECT
+            r.ques_id
+            FROM
+            tb_ques_label_relation r
+            WHERE
+            label_id in ( SELECT l.label_id FROM tb_label l WHERE l.label_name = #{p.labelName} )
+            ) t ON q.ques_id = t.ques_id
+        </if>
+
+        where 1=1
+        <if test="p.content !=null and p.content != ''">
+            and q.ques like concat("%",#{p.content},"%")
+        </if>
+        <if test="p.recentDay !=null and p.recentDay != ''">
+            and datediff(now(),q.create_time) &lt; #{p.recentDay}
+        </if>
+        order by q.high_light desc,create_time desc
+
+
+
+    </select>
 
 
 </mapper>

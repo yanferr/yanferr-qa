@@ -5,6 +5,7 @@ import com.yanferr.common.utils.PageUtils;
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
+import com.yanferr.qa.vo.Search;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public interface QuesService extends IService<QuesEntity> {
 
     List<QuesEntity> findQuesWithin(String search);
 
-    List<QuesEntity> findQuesLike(String search);
+    List<QuesEntity> findQuesLike(Search search);
 
 
 
@@ -44,5 +45,8 @@ public interface QuesService extends IService<QuesEntity> {
     boolean cancelHL(List<Long> asList);
 
     boolean joinMemory(boolean active, Long quesId);
+
+    List<QuesEntity> getQuesLabelsIn(List<String> names);
+
 }
 
