@@ -74,6 +74,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             if (quesEntity.getMemoryLevel() == 0 || quesEntity.getMemoryLevel() == 9) { // 不加入记忆计划或记忆等级达到最高
                 continue;
             }
+            if(quesEntity.getHighLight()==4){ // 置顶元素
+                continue;
+            }
             long lastView = quesEntity.getLastView().getTime();
             long diff = now - lastView;
             if (quesEntity.getMemoryLevel() == 1) {
@@ -329,18 +332,21 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     }
 
     /**
-     * 取消高亮
+     * 取消高亮--设置高亮等级为-1
      */
     @Override
     public boolean cancelHL(List<Long> quesIds) {
+        return setHighLightByQuesIds(quesIds,-1);
+    }
+
+    private boolean setHighLightByQuesIds(List<Long> quesIds,int highLight) {
         ArrayList<QuesEntity> quesEntities = new ArrayList<>();
         for (Long quesId : quesIds) {
             QuesEntity quesEntity = new QuesEntity();
             quesEntity.setQuesId(quesId);
-            quesEntity.setHighLight(-1);
+            quesEntity.setHighLight(highLight);
             quesEntities.add(quesEntity);
         }
-
         return this.updateBatchById(quesEntities);
     }
 
@@ -356,6 +362,16 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             quesEntity.setHighLight(-1);
         }
         return this.updateById(quesEntity);
+    }
+
+    @Override
+    public boolean top(List<Long> quesIds) {
+        return  setHighLightByQuesIds(quesIds,4);
+    }
+
+    @Override
+    public boolean topCancel(List<Long> quesIds) {
+        return  setHighLightByQuesIds(quesIds,-0);
     }
 
 }

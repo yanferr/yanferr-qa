@@ -66,16 +66,10 @@ public class QuesController {
     }
 
 
-    @GetMapping("/searchLabels")
-    public R searchLabels(@PathParam("labels") String labels) {
-        labels = labels.trim().substring(1);
-        String[] names = labels.split(" ");
-        List<QuesEntity> quesEntities = quesService.getQuesLabelsIn(Arrays.asList(names));
-        return R.ok().put("data", quesEntities);
-    }
+
 
     /**
-     * 更新lastView
+     * 双击查看问题时，计算记忆等级，更新lastView
      */
     @GetMapping("/updateHighLight/{quesId}")
     public R updateHighLight(@PathVariable("quesId") Long quesId) {
@@ -119,6 +113,24 @@ public class QuesController {
 
         return R.ok().put("page", page);
     }
+
+    /**
+     * 选择置顶--设置highLight=4
+     */
+    @RequestMapping("/top")
+    public R top(@RequestBody Long[] quesIds) {
+        boolean result = quesService.top(Arrays.asList(quesIds));
+        return result ? R.ok() : R.error("置顶失败");
+    }
+    /**
+     * 取消置顶--设置highLight=0
+     */
+    @RequestMapping("/topCancel")
+    public R topCancel(@RequestBody Long[] quesIds) {
+        boolean result = quesService.topCancel(Arrays.asList(quesIds));
+        return result ? R.ok() : R.error("请求失败");
+    }
+
 
 
     /**
@@ -183,11 +195,10 @@ public class QuesController {
     }
 
     /**
-     * 取消高亮
+     * 取消高亮,就是设置highLight=-1
      */
     @RequestMapping("/cancelHL")
     public R cancelHL(@RequestBody Long[] quesIds) {
-        // 查询answerIds 然后删除
         boolean result = quesService.cancelHL(Arrays.asList(quesIds));
         return result ? R.ok() : R.error("取消高亮失败");
     }

@@ -46,7 +46,8 @@ public interface QuesService extends IService<QuesEntity> {
 
     boolean joinMemory(boolean active, Long quesId);
 
-    List<QuesEntity> getQuesLabelsIn(List<String> names);
+    boolean top(List<Long> quesIds);
 
+    boolean topCancel(List<Long> asList);
 }
 
