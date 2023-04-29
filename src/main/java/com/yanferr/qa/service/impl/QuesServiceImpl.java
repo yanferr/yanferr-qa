@@ -123,7 +123,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             }
             if (quesEntity.getMemoryLevel() == 6) {
                 if (diff > 4 * 24 * 60 * 60 * 1000) {
-                    if (diff < 4 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
+                    if (diff < 4 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
                     } else {
                         quesEntity.setHighLight(2);
@@ -132,7 +132,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             }
             if (quesEntity.getMemoryLevel() == 7) {
                 if (diff > 7 * 24 * 60 * 60 * 1000) {
-                    if (diff < 7 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
+                    if (diff < 7 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
                     } else {
                         quesEntity.setHighLight(2);
@@ -141,7 +141,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             }
             if (quesEntity.getMemoryLevel() == 8) {
                 if (diff > 15 * 24 * 60 * 60 * 1000) {
-                    if (diff < 15 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
+                    if (diff < 15 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
                         quesEntity.setHighLight(1);
                     } else {
                         quesEntity.setHighLight(2);
@@ -358,9 +358,4 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         return this.updateById(quesEntity);
     }
 
-    @Override
-    public List<QuesEntity> getQuesLabelsIn(List<String> names) {
-
-        return quesDao.getQuesLabelsIn(names);
-    }
 }
