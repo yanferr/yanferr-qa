@@ -94,7 +94,7 @@
         <if test="p.recentDay !=null and p.recentDay != ''">
             and datediff(now(),q.create_time) &lt; #{p.recentDay}
         </if>
-        order by q.high_light desc,create_time desc
+        order by q.high_light desc,last_view asc,create_time desc
 
 
 

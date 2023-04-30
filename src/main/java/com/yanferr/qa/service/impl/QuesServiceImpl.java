@@ -58,7 +58,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         setHighLight();
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
-                new QueryWrapper<QuesEntity>().orderByDesc("high_light").orderByDesc("create_time")
+                new QueryWrapper<QuesEntity>().orderByDesc("high_light").orderByAsc("last_view").orderByDesc("create_time")
         );
         return new PageUtils(page);
     }
