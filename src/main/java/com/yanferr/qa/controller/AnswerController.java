@@ -4,6 +4,8 @@ import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
 import com.yanferr.qa.entity.AnswerEntity;
 import com.yanferr.qa.service.AnswerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import java.util.Map;
  * @email ${email}
  * @date 2023-04-06 18:02:57
  */
+@Tag(name = "AnswerController", description = "维护问题的答案")
 @RestController
 @RequestMapping("qa/answer")
 public class AnswerController {
@@ -28,7 +31,8 @@ public class AnswerController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @Operation(summary = "获取所有答案列表",description = "")
+    @GetMapping("/list")
         public R list(@RequestParam Map<String, Object> params){
         PageUtils page = answerService.queryPage(params);
 
@@ -39,7 +43,8 @@ public class AnswerController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{answerId}")
+    @Operation(summary = "根据id查",description = "")
+    @GetMapping("/info/{answerId}")
         public R info(@PathVariable("answerId") Long answerId){
 		AnswerEntity answer = answerService.getById(answerId);
 
@@ -50,7 +55,8 @@ public class AnswerController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @Operation(summary = "保存答案",description = "")
+    @PostMapping("/save")
         public R save(@RequestBody AnswerEntity answer){
 		answerService.save(answer);
 
@@ -60,7 +66,8 @@ public class AnswerController {
     /**
      * 修改
      */
-    @RequestMapping("/update")
+    @Operation(summary = "修改答案",description = "")
+    @PostMapping("/update")
         public R update(@RequestBody AnswerEntity answer){
 		answerService.updateById(answer);
 
@@ -70,7 +77,8 @@ public class AnswerController {
     /**
      * 删除
      */
-    @RequestMapping("/delete")
+    @Operation(summary = "删除/批量删除答案",description = "")
+    @PostMapping("/delete")
         public R delete(@RequestBody Long[] answerIds){
 		answerService.removeByIds(Arrays.asList(answerIds));
 

@@ -66,8 +66,6 @@ public class QuesController {
     }
 
 
-
-
     /**
      * 双击查看问题时，计算记忆等级，更新lastView
      */
@@ -80,7 +78,7 @@ public class QuesController {
     /**
      * 查看接口，批量计算记忆等级，更新lastView
      */
-    @RequestMapping("/updateHighLightBatch")
+    @PostMapping("/updateHighLightBatch")
     public R updateHighLightBatch(@RequestBody Long[] quesIds) {
         quesService.updateHighLightBatch(Arrays.asList(quesIds));
 
@@ -117,7 +115,7 @@ public class QuesController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @GetMapping("/list")
     public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = quesService.queryPage(params);
 
@@ -127,7 +125,7 @@ public class QuesController {
     /**
      * 选择置顶--设置highLight=4
      */
-    @RequestMapping("/top")
+    @PostMapping("/top")
     public R top(@RequestBody Long[] quesIds) {
         boolean result = quesService.top(Arrays.asList(quesIds));
         return result ? R.ok() : R.error("置顶失败");
@@ -135,7 +133,7 @@ public class QuesController {
     /**
      * 取消置顶--设置highLight=0
      */
-    @RequestMapping("/topCancel")
+    @PostMapping("/topCancel")
     public R topCancel(@RequestBody Long[] quesIds) {
         boolean result = quesService.topCancel(Arrays.asList(quesIds));
         return result ? R.ok() : R.error("请求失败");
@@ -146,7 +144,7 @@ public class QuesController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{quesId}")
+    @GetMapping("/info/{quesId}")
     public R info(@PathVariable("quesId") Long quesId) {
         QuesEntity ques = quesService.getById(quesId);
 
@@ -156,7 +154,7 @@ public class QuesController {
     /**
      * 通过labelId获取所有labelId及labelId子下的ques，以及所有问题对应的标签名字
      */
-    @RequestMapping("/list/{labelId}")
+    @GetMapping("/list/{labelId}")
     public R listByLabelId(@PathVariable Long labelId) {
         List<QuesLabelTo> data = quesService.listByLabelId(labelId);
         return R.ok().put("data", data);
@@ -165,7 +163,7 @@ public class QuesController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping("/save")
     public R save(@Valid @RequestBody QuesAnswerVo quesVo, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             HashMap<String, String> map = new HashMap<>();
@@ -184,7 +182,7 @@ public class QuesController {
     /**
      * 修改
      */
-    @RequestMapping("/update")
+    @PostMapping("/update")
     public R update(@RequestBody QuesEntity ques) {
         ques.setUpdateTime(new Date());
         quesService.updateById(ques);
@@ -195,7 +193,7 @@ public class QuesController {
     /**
      * 删除
      */
-    @RequestMapping("/delete")
+    @PostMapping("/delete")
     public R delete(@RequestBody Long[] quesIds) {
         // 查询answerIds 然后删除
 
@@ -207,7 +205,7 @@ public class QuesController {
     /**
      * 取消高亮,就是设置highLight=-1
      */
-    @RequestMapping("/cancelHL")
+    @PostMapping("/cancelHL")
     public R cancelHL(@RequestBody Long[] quesIds) {
         boolean result = quesService.cancelHL(Arrays.asList(quesIds));
         return result ? R.ok() : R.error("取消高亮失败");

@@ -6,11 +6,7 @@ import java.util.Map;
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import com.yanferr.qa.service.QuesLabelRelationService;
@@ -36,7 +32,7 @@ public class QuesLabelRelationController {
      * @param labelIds
      * @return
      */
-    @RequestMapping("/update/{quesId}")
+    @PostMapping("/update/{quesId}")
     public R update(@PathVariable Long quesId, @RequestBody Long[] labelIds){
         quesLabelRelationService.updateByQuesId(quesId,labelIds);
         return R.ok();
@@ -45,7 +41,7 @@ public class QuesLabelRelationController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @GetMapping("/list")
         public R list(@RequestParam Map<String, Object> params){
         PageUtils page = quesLabelRelationService.queryPage(params);
 
@@ -55,7 +51,7 @@ public class QuesLabelRelationController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{labelId}")
+    @GetMapping("/info/{labelId}")
         public R info(@PathVariable("labelId") Long labelId){
 		QuesLabelRelationEntity quesLabelRelation = quesLabelRelationService.getById(labelId);
 
@@ -65,7 +61,7 @@ public class QuesLabelRelationController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping("/save")
         public R save(@RequestBody QuesLabelRelationEntity quesLabelRelation){
 		quesLabelRelationService.save(quesLabelRelation);
 
@@ -75,7 +71,7 @@ public class QuesLabelRelationController {
     /**
      * 修改
      */
-    @RequestMapping("/update")
+    @PostMapping("/update")
         public R update(@RequestBody QuesLabelRelationEntity quesLabelRelation){
 		quesLabelRelationService.updateById(quesLabelRelation);
 
@@ -85,7 +81,7 @@ public class QuesLabelRelationController {
     /**
      * 删除
      */
-    @RequestMapping("/delete")
+    @PostMapping("/delete")
         public R delete(@RequestBody Long[] labelIds){
 		quesLabelRelationService.removeByIds(Arrays.asList(labelIds));
 

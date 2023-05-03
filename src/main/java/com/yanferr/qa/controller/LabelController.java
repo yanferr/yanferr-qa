@@ -36,7 +36,7 @@ public class LabelController {
         return R.ok().put("data",data);
     }
 
-    @RequestMapping("/list/tree")
+    @GetMapping("/list/tree")
     public R list() {
 
         List<LabelEntity> data = labelService.listWithTree(0L);
@@ -47,7 +47,7 @@ public class LabelController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @GetMapping("/list")
     public R list(@RequestParam Map<String, Object> params) {
 
         PageUtils page = labelService.queryPage(params);
@@ -59,7 +59,7 @@ public class LabelController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{labelId}")
+    @GetMapping("/info/{labelId}")
     public R info(@PathVariable("labelId") Long labelId) {
         LabelEntity label = labelService.getById(labelId);
 
@@ -69,7 +69,7 @@ public class LabelController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping("/save")
     public R save(@RequestBody LabelEntity label) {
         labelService.save(label);
 
@@ -79,7 +79,7 @@ public class LabelController {
     /**
      * 修改
      */
-    @RequestMapping("/update")
+    @PostMapping("/update")
     public R update(@RequestBody LabelEntity label) {
         labelService.updateById(label);
 
@@ -89,7 +89,7 @@ public class LabelController {
     /**
      * 删除
      */
-    @RequestMapping("/delete")
+    @PostMapping("/delete")
     public R delete(@RequestBody Long[] labelIds) {
         labelService.removeByIds(Arrays.asList(labelIds));
 
