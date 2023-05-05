@@ -66,14 +66,19 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     private void setHighLight() {
         List<QuesEntity> list = this.list();
         long now = new Date().getTime();
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);// 现在的小时数(24h制)
+        // 晚上10点到早上7点不进行高亮计算
+        if(hour<=22 && hour>=7){
+            return;
+        }
 
         for (QuesEntity quesEntity : list) {
             if (quesEntity.getHighLight() != null && quesEntity.getHighLight() == -1) { // 永久不高亮
                 continue;
             }
-            if (quesEntity.getMemoryLevel() == 0 || quesEntity.getMemoryLevel() == 9) { // 不加入记忆计划或记忆等级达到最高
-                continue;
-            }
+            // if (quesEntity.getMemoryLevel() == 0 || quesEntity.getMemoryLevel() == 9) { // 不加入记忆计划或记忆等级达到最高
+            //     continue;
+            // }
             if(quesEntity.getHighLight()==4){ // 置顶元素
                 continue;
             }
