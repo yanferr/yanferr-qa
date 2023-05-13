@@ -1,56 +1,58 @@
 package com.yanferr.qa.service.impl;
 
-import com.yanferr.qa.dao.LabelDao;
-import com.yanferr.qa.dao.QuesLabelRelationDao;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yanferr.common.constant.QAConstant;
+import com.yanferr.common.utils.PageUtils;
+import com.yanferr.common.utils.Query;
+import com.yanferr.qa.dao.*;
 import com.yanferr.qa.entity.AnswerEntity;
 import com.yanferr.qa.entity.LabelEntity;
+import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import com.yanferr.qa.service.AnswerService;
 import com.yanferr.qa.service.LabelService;
 import com.yanferr.qa.service.QuesLabelRelationService;
+import com.yanferr.qa.service.QuesService;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import com.yanferr.qa.vo.Search;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yanferr.common.utils.PageUtils;
-import com.yanferr.common.utils.Query;
-
-import com.yanferr.qa.dao.QuesDao;
-import com.yanferr.qa.entity.QuesEntity;
-import com.yanferr.qa.service.QuesService;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("quesService")
 public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements QuesService {
 
-    @Autowired
+    @Resource
     private AnswerService answerService;
 
-    @Autowired
+    @Resource
     private LabelService labelService;
 
-    @Autowired
+    @Resource
     private QuesLabelRelationService quesLabelRelationService;
 
-    @Autowired
+    @Resource
     private QuesDao quesDao;
 
-    @Autowired
+    @Resource
     private LabelDao labelDao;
 
-    @Autowired
+    @Resource
+    LevelRecordDao levelRecordDao;
+
+    @Resource
     private QuesLabelRelationDao quesLabelRelationDao;
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -58,112 +60,107 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         setHighLight();
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
-                new QueryWrapper<QuesEntity>().orderByDesc("high_light").orderByAsc("last_view").orderByDesc("create_time")
+                new QueryWrapper<QuesEntity>().orderByDesc("create_time")
         );
+        // 计算status
+        page.setRecords(calStatus(page.getRecords()));
         return new PageUtils(page);
+    }
+
+    private List<QuesEntity> calStatus(List<QuesEntity> records) {
+        long now = new Date().getTime();
+        for (QuesEntity record : records) {
+            if (record.getStatus() != null && record.getStatus() == 0) {
+                continue;
+            }
+            long start = record.getReviewOn().getTime();
+            long end = record.getDelayOn().getTime();
+
+            if (start > now + 24 * 60 * 60 * 1000) { // 大于一天后才提醒的问题
+                record.setStatus(1);
+            }
+            if (now >= start) { // 到提醒时间
+                record.setStatus(2);
+            }
+            if (now >= end) { // 超过提醒时间
+                record.setStatus(3);
+            }
+        }
+        return records;
+    }
+
+    /**
+     * 获取ques列表的时候调用
+     * 根据记忆等级计算下次复习时间和持续提醒时间
+     *
+     * @return
+     */
+    @Override
+    public boolean calNextReview(long quesId, int memoryLevel) {
+        QuesEntity quesEntity = new QuesEntity();
+        quesEntity.setQuesId(quesId);
+        long now = new Date().getTime();
+        long reviewOn = now + QAConstant.RTMAP.get(memoryLevel)[0];// todo:改成从配置文件获取
+        long during = QAConstant.RTMAP.get(memoryLevel)[1];
+
+        reviewOn += randomTime(memoryLevel); // todo：根据通过率计算
+        long delayHour = restHour(reviewOn);
+        quesEntity.setReviewOn(new Date(reviewOn + delayHour));
+        quesEntity.setDelayOn(new Date(reviewOn + during + delayHour));
+
+        return this.saveOrUpdate(quesEntity, new QueryWrapper<QuesEntity>().eq("ques_id", quesId));
+    }
+
+    /**
+     * 随机时间
+     *
+     * @return
+     */
+    private long randomTime(int memoryLevel) {
+        long res = 0L;
+        if(memoryLevel<=5){
+            res =  (long) (Math.random() * 6 * 60 * 60 * 1000);
+        }else{
+            res =  (long) (Math.random() * 12 * 60 * 60 * 1000);
+        }
+        return res;
+    }
+
+    /**
+     * @param reviewOn 预计提醒时间
+     * @return 需要延迟的小时数
+     */
+    private Long restHour(long reviewOn) { // todo：结束提醒时间适配作息时间
+        // 如果22~7是休息时间，则21~7这个时间段提醒的问题要后延
+        int reviewHour = Integer.parseInt(new SimpleDateFormat("HH").format(reviewOn));
+        int res = 0;
+        int start = QAConstant.RestEnum.REST_START.getHour(); // todo：从配置文件获取
+        int end = QAConstant.RestEnum.REST_END.getHour();
+        if (reviewHour >= start - 1
+                || reviewHour < end) {
+            if (reviewHour >= start - 1) res += 24 - reviewHour + end;
+            if (reviewHour < end) res += end - reviewHour;
+        }
+        return res * 60 * 60 * 1000L;
     }
 
     private void setHighLight() {
         List<QuesEntity> list = this.list();
-        long now = new Date().getTime();
+
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);// 现在的小时数(24h制)
         // 晚上10点到早上7点不进行高亮计算
-        if(hour<=22 && hour>=7){
+        if (hour >= 22 || hour <= 7) {
             return;
         }
-
+        long now = new Date().getTime();
         for (QuesEntity quesEntity : list) {
-            if (quesEntity.getHighLight() != null && quesEntity.getHighLight() == -1) { // 永久不高亮
+            if (quesEntity.getHighLight() == -1
+                    || quesEntity.getHighLight() == 2
+                    || quesEntity.getMemoryLevel() == 13
+                    || quesEntity.getHighLight() == 4) { // 不进行高亮的情况
                 continue;
             }
-            // if (quesEntity.getMemoryLevel() == 0 || quesEntity.getMemoryLevel() == 9) { // 不加入记忆计划或记忆等级达到最高
-            //     continue;
-            // }
-            if(quesEntity.getHighLight()==4){ // 置顶元素
-                continue;
-            }
-            long lastView = quesEntity.getLastView().getTime();
-            long diff = now - lastView;
-            if (quesEntity.getMemoryLevel() == 1) {
-                if (diff > 5 * 60 * 1000) {
-                    if (diff < 5 * 60 * 1000 + 12 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 2) {
-                if (diff > 30 * 60 * 1000) {
-                    if (diff < 30 * 60 * 1000 + 12 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 3) {
-                if (diff > 12 * 60 * 60 * 1000) {
-                    if (diff < 12 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 4) {
-                if (diff > 24 * 60 * 60 * 1000) {
-                    if (diff < 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 5) {
-                if (diff > 2 * 24 * 60 * 60 * 1000) {
-                    if (diff < 2 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 6) {
-                if (diff > 4 * 24 * 60 * 60 * 1000) {
-                    if (diff < 4 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 7) {
-                if (diff > 7 * 24 * 60 * 60 * 1000) {
-                    if (diff < 7 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-            if (quesEntity.getMemoryLevel() == 8) {
-                if (diff > 15 * 24 * 60 * 60 * 1000) {
-                    if (diff < 15 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    } else {
-                        quesEntity.setHighLight(2);
-                    }
-                }
-            }
-
-            if (quesEntity.getMemoryLevel() >= 9) {
-                if (diff > 30L * 24 * 60 * 60 * 1000) {
-                    if (diff < 30L * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000) {
-                        quesEntity.setHighLight(1);
-                    }
-                }
-            }
+            doSetHighLight(now, quesEntity);
         }
         List<QuesEntity> collect = list.stream().map(item -> {
             QuesEntity quesEntity = new QuesEntity();
@@ -172,6 +169,21 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             return quesEntity;
         }).collect(Collectors.toList());
         this.updateBatchById(collect);
+    }
+
+    private void doSetHighLight(long now, QuesEntity quesEntity) {
+        long start = QAConstant.RTMAP.get(quesEntity.getMemoryLevel())[0];
+        long duration = QAConstant.RTMAP.get(quesEntity.getMemoryLevel())[1];
+
+        long lastView = quesEntity.getLastView().getTime();
+        long diff = now - lastView;
+        if (diff > start) {
+            if (diff < start + duration) {
+                quesEntity.setHighLight(1);
+            } else {
+                quesEntity.setHighLight(2);
+            }
+        }
     }
 
     @Override
@@ -190,12 +202,15 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         } else {
             // 保存操作
             quesEntity.setCreateTime(new Date());
-            quesEntity.setLastView(new Date());
+            quesEntity.setLastView(new Date()); // 将来会被消息队列取代
             quesEntity.setHighLight(0);
             quesEntity.setMemoryLevel(1);
+            quesEntity.setPassRate("--");
             answerService.save(answerEntity);
             quesEntity.setAnswerId(answerEntity.getAnswerId());
             this.save(quesEntity);
+            calNextReview(quesEntity.getQuesId(), quesEntity.getMemoryLevel()); // 设置提醒时间、提醒到期时间
+            // todo:设置延迟高亮--消息队列
         }
 
         // 先删除关联关系
@@ -221,7 +236,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                 quesLabelRelationDao.insert(relation);
             }
         }
-
     }
 
     @Override
@@ -296,7 +310,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Override
     public List<QuesEntity> findQuesWithin(String search) {
-        QueryWrapper<QuesEntity> queryWrapper = new QueryWrapper<>();
 
         return this.baseMapper.selectQuesWithin(Integer.parseInt(search));
     }
@@ -309,7 +322,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         return this.baseMapper.findQuesLike(search);
     }
 
-
+    /**
+     * 双击查看高亮问题
+     */
     @Override
     @Transactional
     public void updateHighLight(Long quesId) {
@@ -321,22 +336,18 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         if (highLight == 0 || highLight == -1) return;
         updateEntity.setLastView(new Date());
         if (highLight == 1) {
-            if (quesEntity.getMemoryLevel() ==12) { // 达到最高等级
-                updateEntity.setHighLight(-1); // 永久不高亮
-                updateEntity.setMemoryLevel(13);
-                this.updateById(updateEntity);
-                return;
-            }
-            updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() + 1);
             updateEntity.setHighLight(0);
+            int memoryLevel = quesEntity.getMemoryLevel() == 13 ? 13 : quesEntity.getMemoryLevel() + 1;
+            updateEntity.setMemoryLevel(memoryLevel);
         } else if (highLight == 2) {
             updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() == 1 ? quesEntity.getMemoryLevel() : quesEntity.getMemoryLevel() - 1);
             updateEntity.setHighLight(0);
         }
         this.updateById(updateEntity);
+        // todo:设置延迟高亮--消息队列
     }
 
-
+    @Deprecated
     @Override
     public void updateHighLightBatch(List<Long> quesIds) {
         for (Long quesId : quesIds) {
@@ -349,10 +360,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
      */
     @Override
     public boolean cancelHL(List<Long> quesIds) {
-        return setHighLightByQuesIds(quesIds,-1);
+        return setHighLightByQuesIds(quesIds, -1);
     }
 
-    private boolean setHighLightByQuesIds(List<Long> quesIds,int highLight) {
+    private boolean setHighLightByQuesIds(List<Long> quesIds, int highLight) {
         ArrayList<QuesEntity> quesEntities = new ArrayList<>();
         for (Long quesId : quesIds) {
             QuesEntity quesEntity = new QuesEntity();
@@ -368,10 +379,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         // 实现逻辑：打开只需更新lastView和设置highLight=0,关闭只需设置highLight=-1
         QuesEntity quesEntity = new QuesEntity();
         quesEntity.setQuesId(quesId);
-        if(active){
+        if (active) {
             quesEntity.setHighLight(0);
             quesEntity.setLastView(new Date());
-        }else{
+        } else {
             quesEntity.setHighLight(-1);
         }
         return this.updateById(quesEntity);
@@ -379,12 +390,30 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Override
     public boolean top(List<Long> quesIds) {
-        return  setHighLightByQuesIds(quesIds,4);
+        return setHighLightByQuesIds(quesIds, 4);
     }
 
     @Override
     public boolean topCancel(List<Long> quesIds) {
-        return  setHighLightByQuesIds(quesIds,-0);
+        return setHighLightByQuesIds(quesIds, 0);
+    }
+
+    /**
+     * 计算随机时间的系数，对应等级的开始提醒时间的1/4
+     *
+     * @param memoryLevel
+     * @return
+     */
+    public int function(int memoryLevel) {
+        return (int) (0.0018973214558984364 * Math.pow(memoryLevel, 8)
+                - 0.06999008042309449 * Math.pow(memoryLevel, 7)
+                + 1.0796875170926572 * Math.pow(memoryLevel, 6)
+                - 9.088889038603504 * Math.pow(memoryLevel, 5)
+                + 45.582552856892136 * Math.pow(memoryLevel, 4)
+                - 138.71076628757302 * Math.pow(memoryLevel, 3)
+                + 248.33586741732861 * Math.pow(memoryLevel, 2)
+                - 235.13036122998398 * memoryLevel
+                + 88.50000152381455);
     }
 
 

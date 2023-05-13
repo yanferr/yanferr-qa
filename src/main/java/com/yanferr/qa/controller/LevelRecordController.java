@@ -1,7 +1,6 @@
 package com.yanferr.qa.controller;
 
 import com.yanferr.common.utils.R;
-import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.service.LevelRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -8,6 +8,15 @@
 <!--        <result property="labelId" column="label_id"/>-->
 <!--        <result property="quesId" column="ques_id"/>-->
     </resultMap>
+    <select id="selectByQuesIds" resultType="com.yanferr.qa.entity.RemindEntity">
+        select *
+        from tb_remind
+        where ques_id in
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+
+    </select>
 
 
 </mapper>

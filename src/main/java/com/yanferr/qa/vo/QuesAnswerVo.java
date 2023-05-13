@@ -18,7 +18,7 @@ public class QuesAnswerVo {
     private String answer;
 
     // tb_ques
-    private String scene;
+    // private String scene;
 
     private String source;
 

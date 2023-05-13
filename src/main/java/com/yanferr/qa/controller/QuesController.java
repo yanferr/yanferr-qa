@@ -1,24 +1,20 @@
 package com.yanferr.qa.controller;
 
-import java.util.*;
-
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
-import com.yanferr.qa.service.LabelService;
+import com.yanferr.qa.entity.QuesEntity;
+import com.yanferr.qa.service.QuesService;
+import com.yanferr.qa.service.RemindService;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import com.yanferr.qa.vo.Search;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.validator.constraints.EAN;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import com.yanferr.qa.entity.QuesEntity;
-import com.yanferr.qa.service.QuesService;
-
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+import java.util.*;
 
 
 /**
@@ -29,8 +25,11 @@ import javax.websocket.server.PathParam;
 @RestController
 @RequestMapping("qa/ques")
 public class QuesController {
-    @Autowired
+    @Resource
     private QuesService quesService;
+
+    @Resource
+    private RemindService remindService;
 
 
     /**
@@ -118,7 +117,6 @@ public class QuesController {
     @GetMapping("/list")
     public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = quesService.queryPage(params);
-
         return R.ok().put("page", page);
     }
 

@@ -21,6 +21,8 @@ public interface QuesService extends IService<QuesEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
+    boolean calNextReview(long quesId, int memoryLevel);
+
     void saveOrUpdateQuestion(QuesAnswerVo quesVo);
 
     void removeQAByIds(List<Long> quesIds);

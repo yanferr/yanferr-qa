@@ -22,6 +22,21 @@
     </properties>
 
     <dependencies>
+
+        <!--springboot测试-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
         <!--springdoc 官方Starter-->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -41,12 +56,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.springframework.boot</groupId>-->
-<!--                    <artifactId>spring-boot-starter-tomcat</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.springframework.boot</groupId>-->
+            <!--                    <artifactId>spring-boot-starter-tomcat</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
 
         </dependency>
         <dependency>
@@ -88,20 +103,18 @@
     </build>
 
 
-<!--    <dependencyManagement>-->
-<!--        <dependencies>-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-dependencies</artifactId>-->
-<!--                <version>${spring-boot.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
+    <!--    <dependencyManagement>-->
+    <!--        <dependencies>-->
+    <!--            <dependency>-->
+    <!--                <groupId>org.springframework.boot</groupId>-->
+    <!--                <artifactId>spring-boot-dependencies</artifactId>-->
+    <!--                <version>${spring-boot.version}</version>-->
+    <!--                <type>pom</type>-->
+    <!--                <scope>import</scope>-->
+    <!--            </dependency>-->
 
-<!--        </dependencies>-->
-<!--    </dependencyManagement>-->
-
-
+    <!--        </dependencies>-->
+    <!--    </dependencyManagement>-->
 
 
 </project>

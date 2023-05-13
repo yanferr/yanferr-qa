@@ -6,9 +6,9 @@
 	<!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.yanferr.qa.entity.QuesEntity" id="quesMap">
         <result property="quesId" column="ques_id"/>
-        <result property="scene" column="scene"/>
-        <result property="answerId" column="answer_id"/>
         <result property="source" column="source"/>
+        <result property="sourceUrl" column="source_url"/>
+        <result property="answerId" column="answer_id"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -25,6 +25,7 @@
         q.ques_id,
         q.ques,
         q.source,
+        q.sourceUrl,
         q.create_time,
         q.scene,
         a.answer_id,
@@ -94,7 +95,7 @@
         <if test="p.recentDay !=null and p.recentDay != ''">
             and datediff(now(),q.create_time) &lt; #{p.recentDay}
         </if>
-        order by q.high_light desc,last_view asc,create_time desc
+        order by q.high_light desc,create_time desc
 
 
 
