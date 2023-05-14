@@ -21,7 +21,7 @@ public interface QuesService extends IService<QuesEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
-    boolean calNextReview(long quesId, int memoryLevel);
+    boolean calNextReview(QuesEntity quesEntity);
 
     void saveOrUpdateQuestion(QuesAnswerVo quesVo);
 
@@ -53,5 +53,8 @@ public interface QuesService extends IService<QuesEntity> {
     boolean topCancel(List<Long> asList);
 
     void updateHighLightBatch(List<Long> asList);
+
+
+    boolean updateLevel(Map<String, Object> params);
 }
 

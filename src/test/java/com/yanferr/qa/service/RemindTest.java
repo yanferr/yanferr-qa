@@ -28,7 +28,7 @@ public class RemindTest {
     @Test
     public void remindTest() {
         for (QuesEntity quesEntity : quesService.list()) {
-            quesService.calNextReview(quesEntity.getQuesId(), quesEntity.getMemoryLevel());
+            quesService.calNextReview(quesEntity);
         }
 
     }

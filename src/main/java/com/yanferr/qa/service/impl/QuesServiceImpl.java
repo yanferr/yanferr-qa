@@ -11,10 +11,7 @@ import com.yanferr.qa.entity.AnswerEntity;
 import com.yanferr.qa.entity.LabelEntity;
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
-import com.yanferr.qa.service.AnswerService;
-import com.yanferr.qa.service.LabelService;
-import com.yanferr.qa.service.QuesLabelRelationService;
-import com.yanferr.qa.service.QuesService;
+import com.yanferr.qa.service.*;
 import com.yanferr.qa.to.QuesLabelTo;
 import com.yanferr.qa.vo.QuesAnswerVo;
 import com.yanferr.qa.vo.Search;
@@ -42,7 +39,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     private QuesLabelRelationService quesLabelRelationService;
 
     @Resource
-    private QuesDao quesDao;
+    private LevelRecordService levelRecordService;
 
     @Resource
     private LabelDao labelDao;
@@ -56,8 +53,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        // 计算highLight;
-        setHighLight();
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
                 new QueryWrapper<QuesEntity>().orderByDesc("create_time")
@@ -96,9 +91,8 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
      * @return
      */
     @Override
-    public boolean calNextReview(long quesId, int memoryLevel) {
-        QuesEntity quesEntity = new QuesEntity();
-        quesEntity.setQuesId(quesId);
+    public boolean calNextReview(QuesEntity quesEntity) {
+        Integer memoryLevel = quesEntity.getMemoryLevel();
         long now = new Date().getTime();
         long reviewOn = now + QAConstant.RTMAP.get(memoryLevel)[0];// todo:改成从配置文件获取
         long during = QAConstant.RTMAP.get(memoryLevel)[1];
@@ -108,7 +102,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         quesEntity.setReviewOn(new Date(reviewOn + delayHour));
         quesEntity.setDelayOn(new Date(reviewOn + during + delayHour));
 
-        return this.saveOrUpdate(quesEntity, new QueryWrapper<QuesEntity>().eq("ques_id", quesId));
+        return this.saveOrUpdate(quesEntity, new QueryWrapper<QuesEntity>().eq("ques_id", quesEntity.getQuesId()));
     }
 
     /**
@@ -118,10 +112,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
      */
     private long randomTime(int memoryLevel) {
         long res = 0L;
-        if(memoryLevel<=5){
-            res =  (long) (Math.random() * 6 * 60 * 60 * 1000);
-        }else{
-            res =  (long) (Math.random() * 12 * 60 * 60 * 1000);
+        if (memoryLevel <= 5) {
+            res = (long) (Math.random() * 6 * 60 * 60 * 1000);
+        } else {
+            res = (long) (Math.random() * 12 * 60 * 60 * 1000);
         }
         return res;
     }
@@ -209,7 +203,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             answerService.save(answerEntity);
             quesEntity.setAnswerId(answerEntity.getAnswerId());
             this.save(quesEntity);
-            calNextReview(quesEntity.getQuesId(), quesEntity.getMemoryLevel()); // 设置提醒时间、提醒到期时间
+            calNextReview(quesEntity); // 设置提醒时间、提醒到期时间
             // todo:设置延迟高亮--消息队列
         }
 
@@ -326,6 +320,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
      * 双击查看高亮问题
      */
     @Override
+    @Deprecated
     @Transactional
     public void updateHighLight(Long quesId) {
         // 如果高亮等级为2则点击后降级，如果为1则点击后升级，如果为0则不更新lastView
@@ -354,6 +349,35 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             updateHighLight(quesId);
         }
     }
+
+    @Override
+    @Transactional
+    public boolean updateLevel(Map<String, Object> params) { // todo: 不要频繁更新QuesEntity，整合相关业务一次更新
+        // todo:消息队列
+        String status = (String) params.get("status");
+        long quesId = Long.parseLong((String) params.get("quesId"));
+        boolean flag = Boolean.parseBoolean((String) params.get("flag"));
+        QuesEntity quesEntity = this.getById(quesId);
+        QuesEntity updateEntity = new QuesEntity();
+        updateEntity.setQuesId(quesId);
+        // 更新记忆等级 如果已经9级了，不需要更新等级
+        Integer memoryLevel = quesEntity.getMemoryLevel();
+        if (memoryLevel < 9) {
+            // 如果status=2则点击后降级，如果为1则点击后升级
+            if ("2".equals(status)) { // 没超时
+                updateEntity.setMemoryLevel(memoryLevel + 1);
+            } else if ("3".equals(status) && memoryLevel != 1) {
+                updateEntity.setMemoryLevel(memoryLevel - 1);
+            }
+        }
+        // 更新提醒时间
+        calNextReview(updateEntity);
+        // 更新LevelRecord & 计算通过率
+        String master = flag ? "v" : "x";
+        levelRecordService.sou(quesId, master);
+        return true;
+    }
+
 
     /**
      * 取消高亮--设置高亮等级为-1

@@ -66,11 +66,14 @@ public class QuesController {
 
 
     /**
-     * 双击查看问题时，计算记忆等级，更新lastView
+     * 点击通过率下的√或×触发更新memoryLevel和 LevelRecord
+     * status=2则memoryLeve+1 ;status=3则memoryLeve-1；重新计算提醒时间
+     * quesId
+     * flag=true 则master后面加v；=false加x；重新计算通过率
      */
-    @GetMapping("/updateHighLight/{quesId}")
-    public R updateHighLight(@PathVariable("quesId") Long quesId) {
-        quesService.updateHighLight(quesId);
+    @GetMapping("/updateLevel")
+    public R updateLevel(@RequestParam Map<String,Object> params) {
+        quesService.updateLevel(params);
         return R.ok();
     }
 

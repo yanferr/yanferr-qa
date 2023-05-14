@@ -68,6 +68,9 @@ public class QuesEntity implements Serializable {
 	@TableField(exist = false)
 	private Integer status;  //-1不需要显示状态图；0-未开始；1-大于一天后才提醒的问题；2-到提醒时间；3-超过提醒时间
 
+	// 难度
+	private String difficulty;
+
 
 
 }
