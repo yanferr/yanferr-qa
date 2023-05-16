@@ -50,12 +50,52 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     @Resource
     private QuesLabelRelationDao quesLabelRelationDao;
 
+    @Resource
+    private QuesDao quesDao;
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        QueryWrapper<QuesEntity> queryWrapper = new QueryWrapper<>();
+        // 搜索参数
+        if (!"".equals(params.get("labelId"))) {
+            List<Long> quesIds = quesLabelRelationService.list(
+                            new QueryWrapper<QuesLabelRelationEntity>().eq("label_id", params.get("labelId")))
+                    .stream().map(QuesLabelRelationEntity::getQuesId).collect(Collectors.toList());
+            queryWrapper.in("ques_id", quesIds);
+        }
+        if (!"".equals(params.get("content"))) {
+            queryWrapper.like("ques", params.get("content"));
+        }
+        if (!"".equals(params.get("timeInterval"))) {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date now = new Date();
+            String date = "";
+            if ("1".equals(params.get("timeInterval"))) {
+                date = df.format(new Date(now.getTime() - 24 * 60 * 60 * 1000L));
+            } else if ("7".equals(params.get("timeInterval"))) {
+                date = df.format(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000L));
+            } else if ("30".equals(params.get("timeInterval"))) {
+                date = df.format(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000L));
+            }
+            queryWrapper.ge("create_time", date);
+
+        }
+        if (!"".equals(params.get("difficulty"))) {
+            queryWrapper.eq("difficulty", params.get("difficulty"));
+        }
+
+        // 显示正在提醒的问题
+        if (params.get("remind") != null && "true".equals(params.get("remind"))) {
+            queryWrapper.le("review_on", new Date());
+        }
+
+        // 默认按创建时间降序
+        queryWrapper.orderByDesc("create_time");
+
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
-                new QueryWrapper<QuesEntity>().orderByDesc("create_time")
+                queryWrapper
         );
         // 计算status
         page.setRecords(calStatus(page.getRecords()));
@@ -71,6 +111,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             long start = record.getReviewOn().getTime();
             long end = record.getDelayOn().getTime();
 
+            // todo：改成6h内点击是否通过的的问题设置为状态1
             if (start > now + 24 * 60 * 60 * 1000) { // 大于一天后才提醒的问题
                 record.setStatus(1);
             }
@@ -136,48 +177,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             if (reviewHour < end) res += end - reviewHour;
         }
         return res * 60 * 60 * 1000L;
-    }
-
-    private void setHighLight() {
-        List<QuesEntity> list = this.list();
-
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);// 现在的小时数(24h制)
-        // 晚上10点到早上7点不进行高亮计算
-        if (hour >= 22 || hour <= 7) {
-            return;
-        }
-        long now = new Date().getTime();
-        for (QuesEntity quesEntity : list) {
-            if (quesEntity.getHighLight() == -1
-                    || quesEntity.getHighLight() == 2
-                    || quesEntity.getMemoryLevel() == 13
-                    || quesEntity.getHighLight() == 4) { // 不进行高亮的情况
-                continue;
-            }
-            doSetHighLight(now, quesEntity);
-        }
-        List<QuesEntity> collect = list.stream().map(item -> {
-            QuesEntity quesEntity = new QuesEntity();
-            quesEntity.setQuesId(item.getQuesId());
-            quesEntity.setHighLight(item.getHighLight());
-            return quesEntity;
-        }).collect(Collectors.toList());
-        this.updateBatchById(collect);
-    }
-
-    private void doSetHighLight(long now, QuesEntity quesEntity) {
-        long start = QAConstant.RTMAP.get(quesEntity.getMemoryLevel())[0];
-        long duration = QAConstant.RTMAP.get(quesEntity.getMemoryLevel())[1];
-
-        long lastView = quesEntity.getLastView().getTime();
-        long diff = now - lastView;
-        if (diff > start) {
-            if (diff < start + duration) {
-                quesEntity.setHighLight(1);
-            } else {
-                quesEntity.setHighLight(2);
-            }
-        }
     }
 
     @Override
@@ -316,40 +315,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         return this.baseMapper.findQuesLike(search);
     }
 
-    /**
-     * 双击查看高亮问题
-     */
-    @Override
-    @Deprecated
-    @Transactional
-    public void updateHighLight(Long quesId) {
-        // 如果高亮等级为2则点击后降级，如果为1则点击后升级，如果为0则不更新lastView
-        QuesEntity quesEntity = this.getById(quesId);
-        QuesEntity updateEntity = new QuesEntity();
-        updateEntity.setQuesId(quesEntity.getQuesId());
-        Integer highLight = quesEntity.getHighLight();
-        if (highLight == 0 || highLight == -1) return;
-        updateEntity.setLastView(new Date());
-        if (highLight == 1) {
-            updateEntity.setHighLight(0);
-            int memoryLevel = quesEntity.getMemoryLevel() == 13 ? 13 : quesEntity.getMemoryLevel() + 1;
-            updateEntity.setMemoryLevel(memoryLevel);
-        } else if (highLight == 2) {
-            updateEntity.setMemoryLevel(quesEntity.getMemoryLevel() == 1 ? quesEntity.getMemoryLevel() : quesEntity.getMemoryLevel() - 1);
-            updateEntity.setHighLight(0);
-        }
-        this.updateById(updateEntity);
-        // todo:设置延迟高亮--消息队列
-    }
-
-    @Deprecated
-    @Override
-    public void updateHighLightBatch(List<Long> quesIds) {
-        for (Long quesId : quesIds) {
-            updateHighLight(quesId);
-        }
-    }
-
     @Override
     @Transactional
     public boolean updateLevel(Map<String, Object> params) { // todo: 不要频繁更新QuesEntity，整合相关业务一次更新
@@ -366,8 +331,8 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             // 如果status=2则点击后降级，如果为1则点击后升级
             if ("2".equals(status)) { // 没超时
                 updateEntity.setMemoryLevel(memoryLevel + 1);
-            } else if ("3".equals(status) && memoryLevel != 1) {
-                updateEntity.setMemoryLevel(memoryLevel - 1);
+            } else if ("3".equals(status)) {
+                updateEntity.setMemoryLevel(memoryLevel == 1 ? memoryLevel : memoryLevel - 1);
             }
         }
         // 更新提醒时间
@@ -378,48 +343,11 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         return true;
     }
 
-
-    /**
-     * 取消高亮--设置高亮等级为-1
-     */
     @Override
-    public boolean cancelHL(List<Long> quesIds) {
-        return setHighLightByQuesIds(quesIds, -1);
-    }
+    public List<QuesEntity> remindQues() {
 
-    private boolean setHighLightByQuesIds(List<Long> quesIds, int highLight) {
-        ArrayList<QuesEntity> quesEntities = new ArrayList<>();
-        for (Long quesId : quesIds) {
-            QuesEntity quesEntity = new QuesEntity();
-            quesEntity.setQuesId(quesId);
-            quesEntity.setHighLight(highLight);
-            quesEntities.add(quesEntity);
-        }
-        return this.updateBatchById(quesEntities);
-    }
+        return quesDao.remindQues();
 
-    @Override
-    public boolean joinMemory(boolean active, Long quesId) {
-        // 实现逻辑：打开只需更新lastView和设置highLight=0,关闭只需设置highLight=-1
-        QuesEntity quesEntity = new QuesEntity();
-        quesEntity.setQuesId(quesId);
-        if (active) {
-            quesEntity.setHighLight(0);
-            quesEntity.setLastView(new Date());
-        } else {
-            quesEntity.setHighLight(-1);
-        }
-        return this.updateById(quesEntity);
-    }
-
-    @Override
-    public boolean top(List<Long> quesIds) {
-        return setHighLightByQuesIds(quesIds, 4);
-    }
-
-    @Override
-    public boolean topCancel(List<Long> quesIds) {
-        return setHighLightByQuesIds(quesIds, 0);
     }
 
     /**

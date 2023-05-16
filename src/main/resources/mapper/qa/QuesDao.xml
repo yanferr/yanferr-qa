@@ -100,6 +100,10 @@
 
 
     </select>
+    <select id="remindQues" resultType="com.yanferr.qa.entity.QuesEntity">
+        select * from tb_ques
+        where datediff(now(),review_on) >=0
+    </select>
 
 
 </mapper>

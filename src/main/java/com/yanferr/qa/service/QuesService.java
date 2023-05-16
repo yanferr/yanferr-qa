@@ -21,7 +21,6 @@ public interface QuesService extends IService<QuesEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
-    boolean calNextReview(QuesEntity quesEntity);
 
     void saveOrUpdateQuestion(QuesAnswerVo quesVo);
 
@@ -40,21 +39,17 @@ public interface QuesService extends IService<QuesEntity> {
 
     List<QuesEntity> findQuesLike(Search search);
 
-
-
-    void updateHighLight(Long quesId);
-
-    boolean cancelHL(List<Long> asList);
-
-    boolean joinMemory(boolean active, Long quesId);
-
-    boolean top(List<Long> quesIds);
-
-    boolean topCancel(List<Long> asList);
-
-    void updateHighLightBatch(List<Long> asList);
-
+    boolean calNextReview(QuesEntity quesEntity);
+    // void updateHighLight(Long quesId);
+    // boolean cancelHL(List<Long> asList);
+    // boolean joinMemory(boolean active, Long quesId);
+    // boolean top(List<Long> quesIds);
+    // boolean topCancel(List<Long> asList);
+    // void updateHighLightBatch(List<Long> asList);
 
     boolean updateLevel(Map<String, Object> params);
+
+    List<QuesEntity> remindQues();
+
 }
 

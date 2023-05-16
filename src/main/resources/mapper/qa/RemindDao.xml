@@ -15,7 +15,6 @@
         <foreach collection="list" open="(" close=")" separator="," item="item">
             #{item}
         </foreach>
-
     </select>
 
 

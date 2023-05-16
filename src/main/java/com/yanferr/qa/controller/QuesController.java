@@ -41,9 +41,19 @@ public class QuesController {
     @GetMapping("/joinMemory")
     public R joinMemory(@PathParam("active") boolean active, @PathParam("quesId") Long quesId) {
 
-        boolean result = quesService.joinMemory(active, quesId);
+        // boolean result = quesService.joinMemory(active, quesId);
 
-        return result ? R.ok() : R.error("更新失败");
+        return R.ok();
+    }
+
+    /**
+     * 查找所有正在提醒的问题
+     * @return
+     */
+    @GetMapping("/remindQues")
+    public R remindQues(){
+        List<QuesEntity> data = quesService.remindQues();
+        return R.ok().put("data",data);
     }
 
     /**
@@ -77,15 +87,7 @@ public class QuesController {
         return R.ok();
     }
 
-    /**
-     * 查看接口，批量计算记忆等级，更新lastView
-     */
-    @PostMapping("/updateHighLightBatch")
-    public R updateHighLightBatch(@RequestBody Long[] quesIds) {
-        quesService.updateHighLightBatch(Arrays.asList(quesIds));
 
-        return R.ok();
-    }
 
 
     /**
@@ -122,25 +124,6 @@ public class QuesController {
         PageUtils page = quesService.queryPage(params);
         return R.ok().put("page", page);
     }
-
-    /**
-     * 选择置顶--设置highLight=4
-     */
-    @PostMapping("/top")
-    public R top(@RequestBody Long[] quesIds) {
-        boolean result = quesService.top(Arrays.asList(quesIds));
-        return result ? R.ok() : R.error("置顶失败");
-    }
-    /**
-     * 取消置顶--设置highLight=0
-     */
-    @PostMapping("/topCancel")
-    public R topCancel(@RequestBody Long[] quesIds) {
-        boolean result = quesService.topCancel(Arrays.asList(quesIds));
-        return result ? R.ok() : R.error("请求失败");
-    }
-
-
 
     /**
      * 信息
@@ -203,13 +186,6 @@ public class QuesController {
         return R.ok();
     }
 
-    /**
-     * 取消高亮,就是设置highLight=-1
-     */
-    @PostMapping("/cancelHL")
-    public R cancelHL(@RequestBody Long[] quesIds) {
-        boolean result = quesService.cancelHL(Arrays.asList(quesIds));
-        return result ? R.ok() : R.error("取消高亮失败");
-    }
+
 
 }
