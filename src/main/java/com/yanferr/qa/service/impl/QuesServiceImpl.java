@@ -62,7 +62,9 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             List<Long> quesIds = quesLabelRelationService.list(
                             new QueryWrapper<QuesLabelRelationEntity>().eq("label_id", params.get("labelId")))
                     .stream().map(QuesLabelRelationEntity::getQuesId).collect(Collectors.toList());
-            queryWrapper.in("ques_id", quesIds);
+            if(quesIds.size()!=0){
+                queryWrapper.in("ques_id", quesIds);
+            }
         }
         if (!"".equals(params.get("content"))) {
             queryWrapper.like("ques", params.get("content"));

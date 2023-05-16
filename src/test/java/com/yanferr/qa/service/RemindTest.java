@@ -17,13 +17,6 @@ public class RemindTest {
     @Autowired
     private LevelRecordService levelRecordService;
 
-    @Test
-    public void random() {
-        // 0~3 0~60
-        for (int i = 0; i < 100; i++) {
-            System.out.println((Math.random() * 6));
-        }
-    }
 
     @Test
     public void remindTest() {
