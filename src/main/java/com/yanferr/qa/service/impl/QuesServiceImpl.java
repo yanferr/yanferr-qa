@@ -65,6 +65,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             if(quesIds.size()!=0){
                 queryWrapper.in("ques_id", quesIds);
             }
+            // todo:else返回空数据
         }
         if (!"".equals(params.get("content"))) {
             queryWrapper.like("ques", params.get("content"));
@@ -113,8 +114,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             long start = record.getReviewOn().getTime();
             long end = record.getDelayOn().getTime();
 
-            // todo：改成6h内点击是否通过的的问题设置为状态1
-            if (start > now + 24 * 60 * 60 * 1000) { // 大于一天后才提醒的问题
+            if (record.getLastView()!=null && now - record.getLastView().getTime()<= 12*60*60*1000L) { // 12h内点击是否通过的的问题设置为状态1
                 record.setStatus(1);
             }
             if (now >= start) { // 到提醒时间
@@ -197,7 +197,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         } else {
             // 保存操作
             quesEntity.setCreateTime(new Date());
-            quesEntity.setLastView(new Date()); // 将来会被消息队列取代
+            // quesEntity.setLastView(new Date()); // 将来会被消息队列取代
             quesEntity.setHighLight(0);
             quesEntity.setMemoryLevel(1);
             quesEntity.setPassRate("--");

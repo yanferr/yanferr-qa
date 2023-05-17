@@ -49,6 +49,7 @@ public class LevelRecordServiceImpl extends ServiceImpl<LevelRecordDao, LevelRec
         // 设置通过率
         QuesEntity updateQuesPassRate = new QuesEntity();
         updateQuesPassRate.setQuesId(quesEntity.getQuesId());
+        updateQuesPassRate.setLastView(new Date());  // 更新最近一次查看时间
         updateQuesPassRate.setPassRate(calRate(levelRecordEntity.getMaster()));
         return quesDao.updateById(updateQuesPassRate) > 0
                 && this.saveOrUpdate(levelRecordEntity);
