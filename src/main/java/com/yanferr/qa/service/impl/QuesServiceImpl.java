@@ -96,10 +96,14 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         // 默认按创建时间降序
         queryWrapper.orderByDesc("create_time");
 
+        // todo:改成消息队列，到提醒时间的时候做标记
+
+
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
                 queryWrapper
         );
+
         // 计算status
         page.setRecords(calStatus(page.getRecords()));
         return new PageUtils(page);
@@ -140,7 +144,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         long reviewOn = now + QAConstant.RTMAP.get(memoryLevel)[0];// todo:改成从配置文件获取
         long during = QAConstant.RTMAP.get(memoryLevel)[1];
 
-        reviewOn += randomTime(memoryLevel); // todo：根据通过率计算
+        reviewOn += randomTime(memoryLevel);
         long delayHour = restHour(reviewOn);
         quesEntity.setReviewOn(new Date(reviewOn + delayHour));
         quesEntity.setDelayOn(new Date(reviewOn + during + delayHour));
@@ -153,7 +157,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
      *
      * @return
      */
-    private long randomTime(int memoryLevel) {
+    private long randomTime(int memoryLevel) { // todo:根据通过的权重计算
         long res = 0L;
         if (memoryLevel <= 5) {
             res = (long) (Math.random() * 6 * 60 * 60 * 1000);
@@ -350,6 +354,12 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
         return quesDao.remindQues();
 
+    }
+
+    @Override
+    public boolean lastedReviewOn() {
+
+        return quesDao.lastedReviewOn();
     }
 
     /**

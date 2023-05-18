@@ -87,8 +87,15 @@ public class QuesController {
         return R.ok();
     }
 
-
-
+    /**
+     * 问题的最近提醒时间有没有超过当前时间
+     * @return
+     */
+    @GetMapping("/lastedReviewOn")
+    public R lastedReviewOn(){
+        boolean res = quesService.lastedReviewOn();
+        return R.ok().put("data",res);
+    }
 
     /**
      * 查询最近一次提交的问题和答案

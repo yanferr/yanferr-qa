@@ -33,4 +33,6 @@ public interface QuesDao extends BaseMapper<QuesEntity> {
     List<QuesEntity> findQuesLike(@Param("p") Search search);
 
     List<QuesEntity> remindQues();
+
+    boolean lastedReviewOn();
 }

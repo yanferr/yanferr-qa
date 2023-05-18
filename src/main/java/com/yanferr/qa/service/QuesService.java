@@ -51,5 +51,9 @@ public interface QuesService extends IService<QuesEntity> {
 
     List<QuesEntity> remindQues();
 
+
+
+    boolean lastedReviewOn();
+
 }
 
