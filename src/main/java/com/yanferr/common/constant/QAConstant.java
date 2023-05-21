@@ -21,6 +21,52 @@ public class QAConstant {
         put(12, new Long[]{30L * 24 * 60 * 60 * 1000,  24 * 60 * 60 * 1000L});
         put(13, new Long[]{30L * 24 * 60 * 60 * 1000,  24 * 60 * 60 * 1000L});
     }};
+
+    public enum IntervalEnum{
+
+        DAY("1",24*60*60*1000L),
+        WEEK("7",7*24*60*60*1000L),
+        MONTH("30",30*24*60*60*1000L);
+
+        final private String interval;
+        final private Long timeStamp;
+
+        IntervalEnum(String interval,Long timeStamp) {
+            this.interval = interval;
+            this.timeStamp=timeStamp;
+        }
+
+        public String getInterval() {
+            return interval;
+        }
+
+        public Long getTimeStamp() {
+            return timeStamp;
+        }
+    }
+
+    public enum StatusEnum{
+
+        STATUS_FINISH(1,"12h内点击是否通过的的问题"),
+        STATUS_START(2,"到提醒时间"),
+        STATUS_DELAY(3,"超过提醒时间");
+
+        final private int status;
+        final private String msg;
+
+        StatusEnum(int status,String msg) {
+            this.status = status;
+            this.msg=msg;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
     public enum RestEnum{
 
         REST_START(22,"开始休息的时间"),

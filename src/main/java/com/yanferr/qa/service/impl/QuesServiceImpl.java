@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -70,16 +71,17 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
         if (!"".equals(params.get("content"))) {
             queryWrapper.like("ques", params.get("content"));
         }
-        if (!"".equals(params.get("timeInterval"))) {
+        String timeInterval = (String)params.get("timeInterval");
+        if (!"".equals(timeInterval)) {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             Date now = new Date();
             String date = "";
-            if ("1".equals(params.get("timeInterval"))) {
-                date = df.format(new Date(now.getTime() - 24 * 60 * 60 * 1000L));
-            } else if ("7".equals(params.get("timeInterval"))) {
-                date = df.format(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000L));
-            } else if ("30".equals(params.get("timeInterval"))) {
-                date = df.format(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000L));
+            if (QAConstant.IntervalEnum.DAY.getInterval().equals(timeInterval)) {
+                date = df.format(new Date(now.getTime() - QAConstant.IntervalEnum.DAY.getTimeStamp()));
+            } else if (QAConstant.IntervalEnum.WEEK.getInterval().equals(timeInterval)) {
+                date = df.format(new Date(now.getTime() -  QAConstant.IntervalEnum.WEEK.getTimeStamp()));
+            } else if (QAConstant.IntervalEnum.MONTH.getInterval().equals(timeInterval)) {
+                date = df.format(new Date(now.getTime() -  QAConstant.IntervalEnum.MONTH.getTimeStamp()));
             }
             queryWrapper.ge("create_time", date);
 
@@ -95,9 +97,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
         // 默认按创建时间降序
         queryWrapper.orderByDesc("create_time");
-
-        // todo:改成消息队列，到提醒时间的时候做标记
-
 
         IPage<QuesEntity> page = this.page(
                 new Query<QuesEntity>().getPage(params),
@@ -119,13 +118,13 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             long end = record.getDelayOn().getTime();
 
             if (record.getLastView()!=null && now - record.getLastView().getTime()<= 12*60*60*1000L) { // 12h内点击是否通过的的问题设置为状态1
-                record.setStatus(1);
+                record.setStatus(QAConstant.StatusEnum.STATUS_FINISH.getStatus());
             }
             if (now >= start) { // 到提醒时间
-                record.setStatus(2);
+                record.setStatus(QAConstant.StatusEnum.STATUS_START.getStatus());
             }
             if (now >= end) { // 超过提醒时间
-                record.setStatus(3);
+                record.setStatus(QAConstant.StatusEnum.STATUS_DELAY.getStatus());
             }
         }
         return records;
@@ -154,7 +153,6 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     /**
      * 随机时间
-     *
      * @return
      */
     private long randomTime(int memoryLevel) { // todo:根据通过的权重计算
@@ -356,8 +354,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
 
     }
 
+
+
     @Override
-    public boolean lastedReviewOn() {
+    public boolean lastedReviewOn() {  // todo:改成消息队列，到提醒时间的时候做标记
 
         return quesDao.lastedReviewOn();
     }
