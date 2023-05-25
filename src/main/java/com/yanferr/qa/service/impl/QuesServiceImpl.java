@@ -65,8 +65,10 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                     .stream().map(QuesLabelRelationEntity::getQuesId).collect(Collectors.toList());
             if(quesIds.size()!=0){
                 queryWrapper.in("ques_id", quesIds);
+            }else{
+                queryWrapper.eq("ques_id","noData");
             }
-            // todo:else返回空数据
+
         }
         if (!"".equals(params.get("content"))) {
             queryWrapper.like("ques", params.get("content"));
@@ -246,6 +248,8 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
                     .eq("ques_id", quesId));
         }
 
+        // 逻辑删除对应的level_record
+
         this.removeByIds(quesIds);
     }
 
@@ -315,6 +319,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
     public List<QuesEntity> findQuesLike(Search search) {
         if (!StringUtils.isEmpty(search.getContent())) {
             search.setContent(search.getContent().trim());
+            function(1);
         }
         return this.baseMapper.findQuesLike(search);
     }
