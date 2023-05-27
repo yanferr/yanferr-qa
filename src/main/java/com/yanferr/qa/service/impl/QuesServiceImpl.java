@@ -66,7 +66,7 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             if(quesIds.size()!=0){
                 queryWrapper.in("ques_id", quesIds);
             }else{
-                queryWrapper.eq("ques_id","noData");
+                queryWrapper.eq("ques_id","noData"); // 返回空数据
             }
 
         }
@@ -246,9 +246,11 @@ public class QuesServiceImpl extends ServiceImpl<QuesDao, QuesEntity> implements
             answerService.removeById(ques.getAnswerId());
             quesLabelRelationDao.delete(new QueryWrapper<QuesLabelRelationEntity>()
                     .eq("ques_id", quesId));
+            // 逻辑删除对应的level_record
+
         }
 
-        // 逻辑删除对应的level_record
+
 
         this.removeByIds(quesIds);
     }

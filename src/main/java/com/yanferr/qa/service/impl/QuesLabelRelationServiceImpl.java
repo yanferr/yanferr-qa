@@ -4,6 +4,7 @@ import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.Query;
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.service.QuesService;
+import com.yanferr.qa.vo.QuesLabelRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,14 @@ import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import com.yanferr.qa.service.QuesLabelRelationService;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 
 @Service("quesLabelRelationService")
 public class QuesLabelRelationServiceImpl extends ServiceImpl<QuesLabelRelationDao, QuesLabelRelationEntity> implements QuesLabelRelationService {
 
+    @Resource
+    QuesLabelRelationDao quesLabelRelationDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -54,6 +59,14 @@ public class QuesLabelRelationServiceImpl extends ServiceImpl<QuesLabelRelationD
             relationEntity.setQuesId(quesId);
             this.save(relationEntity);
         }
+    }
+
+    @Override
+    public List<QuesLabelRelationVo> labelQuesNums() {
+
+
+        return quesLabelRelationDao.findLabelQuesNums();
+
     }
 
 

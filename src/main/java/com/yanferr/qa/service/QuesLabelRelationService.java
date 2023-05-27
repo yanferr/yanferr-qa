@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.qa.entity.QuesEntity;
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
+import com.yanferr.qa.vo.QuesLabelRelationVo;
 
 import java.util.List;
 import java.util.Map;
@@ -21,5 +22,7 @@ public interface QuesLabelRelationService extends IService<QuesLabelRelationEnti
 
 
     void updateByQuesId(Long quesId, Long[] labelIds);
+
+    List<QuesLabelRelationVo> labelQuesNums();
 }
 

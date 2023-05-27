@@ -2,7 +2,10 @@ package com.yanferr.qa.dao;
 
 import com.yanferr.qa.entity.QuesLabelRelationEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yanferr.qa.vo.QuesLabelRelationVo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * 
@@ -13,5 +16,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface QuesLabelRelationDao extends BaseMapper<QuesLabelRelationEntity> {
-	
+
+    List<QuesLabelRelationVo> findLabelQuesNums();
 }

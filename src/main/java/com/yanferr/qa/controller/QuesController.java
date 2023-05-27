@@ -11,6 +11,7 @@ import com.yanferr.qa.vo.Search;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
@@ -25,6 +26,7 @@ import java.util.*;
 @RestController
 @RequestMapping("qa/ques")
 public class QuesController {
+
     @Resource
     private QuesService quesService;
 
@@ -40,9 +42,8 @@ public class QuesController {
      */
     @GetMapping("/joinMemory")
     public R joinMemory(@PathParam("active") boolean active, @PathParam("quesId") Long quesId) {
-
+        List arrayLis = new ArrayList<QuesEntity>();
         // boolean result = quesService.joinMemory(active, quesId);
-
         return R.ok();
     }
 
@@ -88,7 +89,7 @@ public class QuesController {
     }
 
     /**
-     * 问题的最近提醒时间有没有超过当前时间
+     * 有没有新提醒的问题
      * @return
      */
     @GetMapping("/lastedReviewOn")

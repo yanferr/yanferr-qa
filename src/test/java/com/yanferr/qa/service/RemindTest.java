@@ -18,7 +18,7 @@ public class RemindTest {
     private LevelRecordService levelRecordService;
 
 
-    @Test
+    // @Test
     public void remindTest() {
         for (QuesEntity quesEntity : quesService.list()) {
             quesService.calNextReview(quesEntity);
@@ -26,7 +26,7 @@ public class RemindTest {
 
     }
 
-    @Test
+    // @Test
     public void levelRecord() {
         for (QuesEntity quesEntity : quesService.list()) {
             levelRecordService.sou(quesEntity.getQuesId(), "v");

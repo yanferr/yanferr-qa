@@ -8,6 +8,21 @@
         <result property="labelId" column="label_id"/>
         <result property="quesId" column="ques_id"/>
     </resultMap>
+    <select id="findLabelQuesNums" resultType="com.yanferr.qa.vo.QuesLabelRelationVo">
+
+        SELECT
+            r.label_id,
+            l.label_name,
+            count(ques_id) AS nums
+        FROM
+            `tb_ques_label_relation` r
+                LEFT JOIN tb_label l ON l.label_id = r.label_id
+        GROUP BY
+            label_id
+        ORDER BY
+            nums DESC
+
+    </select>
 
 
 </mapper>

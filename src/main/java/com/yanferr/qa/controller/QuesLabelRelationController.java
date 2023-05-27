@@ -1,10 +1,12 @@
 package com.yanferr.qa.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.common.utils.R;
+import com.yanferr.qa.vo.QuesLabelRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +48,16 @@ public class QuesLabelRelationController {
         PageUtils page = quesLabelRelationService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    /**
+     * 标签-问题数量
+     */
+    @GetMapping("/labelQuesNums")
+    public R list(){
+        List<QuesLabelRelationVo> data = quesLabelRelationService.labelQuesNums();
+
+        return R.ok().put("data", data);
     }
 
     /**
