@@ -16,6 +16,8 @@ import java.util.List;
  */
 @Mapper
 public interface QuesLabelRelationDao extends BaseMapper<QuesLabelRelationEntity> {
+    // 冒泡排序
+
 
     List<QuesLabelRelationVo> findLabelQuesNums();
 }

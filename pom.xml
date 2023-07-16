@@ -101,7 +101,6 @@
                 <configuration>
                     <mainClass>com.yanferr.QaApplication</mainClass>
                 </configuration>
-
             </plugin>
         </plugins>
     </build>
