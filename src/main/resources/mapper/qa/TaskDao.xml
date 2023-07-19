@@ -6,6 +6,6 @@
 
     <select id="getRecentTasks" resultType="com.yanferr.qa.entity.TaskEntity">
         select * from tb_task
-        order by create_time desc limit 7;
+        order by task_date desc limit 7;
     </select>
 </mapper>

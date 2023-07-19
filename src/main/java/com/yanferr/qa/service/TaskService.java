@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.yanferr.common.utils.PageUtils;
 import com.yanferr.qa.entity.TaskEntity;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,8 +17,8 @@ public interface TaskService extends IService<TaskEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
-    List<TaskEntity> recentTasks();
+    TaskEntity recentTasks();
 
-    void saveEntity(TaskEntity entity);
+    Long saveEntity(TaskEntity entity);
 }
 

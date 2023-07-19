@@ -1,5 +1,6 @@
 package com.yanferr.qa.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,18 +19,12 @@ import java.sql.Timestamp;
 @TableName("tb_task")
 public class TaskEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
-
 	/**
 	 * 
 	 */
-	@TableId
-	private Long task_id;
-	/**
-	 * 
-	 */
-
+	@TableId(type = IdType.AUTO)
+	private Long taskId;
 	private String task;
-
-	private Timestamp createTime;
+	private Timestamp taskDate;
 
 }

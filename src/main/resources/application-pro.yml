@@ -13,7 +13,9 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm
     time-zone: GMT+8   # 24小时制
-
+logging: #开启日志打印，能看到sql
+  level:
+    com.yanferr.qa: debug
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:

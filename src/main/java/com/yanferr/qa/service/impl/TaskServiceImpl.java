@@ -11,6 +11,8 @@ import com.yanferr.qa.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -33,26 +35,62 @@ public class TaskServiceImpl extends ServiceImpl<TaskDao, TaskEntity> implements
     }
 
     @Override
-    public List<TaskEntity> recentTasks() {
+    public TaskEntity recentTasks() {
 
         List<TaskEntity> recentTasks = taskDao.getRecentTasks();
-        for (TaskEntity recentTask : recentTasks) {
-            String task = recentTask.getTask();
-            StringBuilder stringBuilder = new StringBuilder();
-            String date = recentTask.getCreateTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("MM-dd"));
-            stringBuilder.append(">>>>>>>")
-                    .append(date)
-                    .append("\r\n")
-                    .append(task);
-            recentTask.setTask(stringBuilder.toString());
+
+        // taskId为今天日期的taskId
+        // task为最近7天的task拼接
+        TaskEntity res = new TaskEntity();
+        if (recentTasks.size() == 0) {
+            return null;
         }
 
-        return recentTasks;
+        StringBuilder allTaskStr = new StringBuilder();
+        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd"));
+
+        for (TaskEntity recentTask : recentTasks) {
+            String task = recentTask.getTask();
+
+            String date = recentTask.getTaskDate().toLocalDateTime().format(DateTimeFormatter.ofPattern("MM-dd"));
+            // 和当前时间相等，不需要加>>>>date
+            if (nowDate.equals(date)) {
+                allTaskStr.append(task)
+                        .append("\r\n");
+                res.setTaskId(recentTask.getTaskId());
+            } else {
+                allTaskStr.append("\r\n").
+                        append(">>>>>>>")
+                        .append(date)
+                        .append("\r\n")
+                        .append(task);
+            }
+            res.setTask(allTaskStr.toString());
+        }
+
+        return res;
     }
 
+
     @Override
-    public void saveEntity(TaskEntity entity) {
-        // entity.setCreateTime(new );
+    public Long saveEntity(TaskEntity entity) {
+
+        String task = entity.getTask();
+        if (task.contains(">>>>>>>")) {
+            int idx = task.indexOf(">>>>>>>");
+            task = task.substring(0, idx);
+        }
+        entity.setTask(task.trim());
+
+        // 执行新增
+        if(entity.getTaskId() == null){
+            entity.setTaskDate(new Timestamp(System.currentTimeMillis()));
+        }
+
+        this.saveOrUpdate(entity);
+
+        return entity.getTaskId();
+
     }
 
 }

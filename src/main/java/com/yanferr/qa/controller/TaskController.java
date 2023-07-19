@@ -41,6 +41,8 @@ public class TaskController {
     }
 
 
+
+
     /**
      * 信息
      */
@@ -57,7 +59,7 @@ public class TaskController {
     @Operation(summary = "获取最近7笔任务列表",description = "")
     @GetMapping("/recent")
     public R recentTasks(){
-        List<TaskEntity> tasks = taskService.recentTasks();
+        TaskEntity tasks = taskService.recentTasks();
 
         return R.ok().put("tasks", tasks);
     }
@@ -70,15 +72,14 @@ public class TaskController {
     @Operation(summary = "保存答案",description = "")
     @PostMapping("/save")
         public R save(@RequestBody TaskEntity entity){
-		taskService.saveEntity(entity);
 
-        return R.ok();
+        return R.ok().put("taskId",taskService.saveEntity(entity));
     }
 
     /**
      * 修改
      */
-    @Operation(summary = "修改答案",description = "")
+    @Operation(summary = "修改任务内容",description = "")
     @PostMapping("/update")
         public R update(@RequestBody TaskEntity taskEntity){
 		taskService.updateById(taskEntity);
